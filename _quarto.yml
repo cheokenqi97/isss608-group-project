@@ -11,12 +11,16 @@ website:
     collapse-below: lg
 
     left:
-      - text: "Take-home Exercises"
+      - text: "Singapore Fertility Trends: A Visual Analytics Study"
         menu:
-          - text: "THE02"
-            href: THE02.qmd      
-          - text: "TE02"
-            href: TE02.qmd            
+          - text: "Data Preparation and EDA"
+            href: data preparation and eda.qmd 
+          - text: "Correlation Analysis"
+            href: correlation analysis.qmd   
+          - text: "Regression Analysis"
+            href: regression analysis.qmd  
+          - text: "Storyboard"
+            href: storyboard.qmd      
     right:
       - icon: house
         href: index.qmd
