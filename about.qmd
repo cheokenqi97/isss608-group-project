@@ -1,0 +1,25 @@
+---
+title: "About Me"
+toc: false
+---
+
+Hi, I’m **Cheok En Qi**, a postgraduate student with interests in\
+**data analytics and visualisation**.
+
+------------------------------------------------------------------------
+
+## This Website
+
+This site serves as a collection of my:
+
+-   Hands-on exercises\
+-   In-class practices\
+-   Coursework submissions\
+
+All pages are built using **Quarto + R Markdown**.
+
+------------------------------------------------------------------------
+
+## Links
+
+-   GitHub: <https://github.com/cheokenqi97>

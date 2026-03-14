@@ -1,0 +1,40 @@
+project:
+  type: website
+ 
+website:
+  title: "Group Project"
+  search: true
+
+  navbar:
+    background: "#2563eb"   
+    foreground: "white"
+    collapse-below: lg
+
+    left:
+      - text: "Take-home Exercises"
+        menu:
+          - text: "THE02"
+            href: THE02.qmd      
+          - text: "TE02"
+            href: TE02.qmd            
+    right:
+      - icon: house
+        href: index.qmd
+        aria-label: Home
+      - icon: person-circle
+        href: about.qmd
+
+  page-footer:
+    left: "Made with Quarto"
+    right: "ISSS608"
+ 
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    toc-location: right
+    toc-title: "On this page"
+    smooth-scroll: true
+
+editor: visual
