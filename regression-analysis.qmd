@@ -10,8 +10,8 @@ execute:
   freeze: true
 ---
 
-
 ## load dataset
+
 ```{r}
 pacman::p_load(tidyverse, corrplot, knitr, patchwork)
 
@@ -21,8 +21,7 @@ asfr_df <- readRDS("data/asfr_df.rds")
 series_key <- readRDS("data/series_key.rds")
 ```
 
-
-# Regression Analysis 
+# Regression Analysis
 
 This section presents on regression-based analysis to examine whether marriage and divorce indicators can statistically explain fertility trends.
 

@@ -9,7 +9,7 @@
 <meta name="author" content="G1 T16 - Cheok En Qi and Teong Sze Ching">
 <meta name="dcterms.date" content="2026-03-01">
 
-<title>Correlation Analysis: Singapore Fertility Trends: A Visual Analytics Study – Group Project</title>
+<title>Regression Analysis: Singapore Fertility Trends: A Visual Analytics Study – Group Project</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -134,15 +134,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-singapore-fertility-trends-a-visual-analytics-study">    
         <li>
-    <a class="dropdown-item" href="./data preparation and eda.html">
+    <a class="dropdown-item" href="./data-preparation-and-eda.html">
  <span class="dropdown-text">Data Preparation and EDA</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./correlation analysis.html">
+    <a class="dropdown-item" href="./correlation-analysis.html">
  <span class="dropdown-text">Correlation Analysis</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./regression analysis.html">
+    <a class="dropdown-item" href="./regression-analysis.html">
  <span class="dropdown-text">Regression Analysis</span></a>
   </li>  
         <li>
@@ -180,7 +180,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#load-dataset" id="toc-load-dataset" class="nav-link active" data-scroll-target="#load-dataset">load dataset</a></li>
-  <li><a href="#correlation-analysis" id="toc-correlation-analysis" class="nav-link" data-scroll-target="#correlation-analysis">Correlation Analysis</a></li>
+  <li><a href="#regression-analysis" id="toc-regression-analysis" class="nav-link" data-scroll-target="#regression-analysis">Regression Analysis</a></li>
   </ul>
 </nav>
     </div>
@@ -189,7 +189,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Correlation Analysis: Singapore Fertility Trends: A Visual Analytics Study</h1>
+<h1 class="title">Regression Analysis: Singapore Fertility Trends: A Visual Analytics Study</h1>
 </div>
 
 
@@ -235,257 +235,295 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>series_key <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/series_key.rds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="correlation-analysis" class="level1">
-<h1>Correlation Analysis</h1>
-<p>This section presents on correlation-based analysis and related association checks. In particular, this examine how total fertility rate (TFR) is associated with marriage and divorce indicators, and whether these relationships remain stable when trends, timing differences, and time variation are taken into account.</p>
-<p>The correlation component is designed to support the planned Shiny application, where users will be able to interactively explore the strength, direction, and stability of these relationships. This helps complement the descriptive visualisations by providing a more structured analytical layer for understanding how fertility patterns move alongside marriage and divorce indicators over time.</p>
+<section id="regression-analysis" class="level1">
+<h1>Regression Analysis</h1>
+<p>This section presents on regression-based analysis to examine whether marriage and divorce indicators can statistically explain fertility trends.</p>
+<p>The regression component is designed to support the planned Shiny application, where users will be able to interactively vary the lag structure of the predictors. As such, the analysis focuses on a baseline current-year model and lagged models that can later be integrated directly into the interactive dashboard. Because these variables change together over time, the regression results should be interpreted as statistical relationships or associations rather than proof of cause and effect.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>1.1: Correlation in Levels and First Differences
+<span class="screen-reader-only">Note</span>1.1 Baseline Regression Models — Marriage vs Divorce vs Both
 </div>
 </div>
 <div class="callout-body-container callout-body">
+<p>These baseline models examine whether fertility is associated with marriage and divorce in the current period. For example, does fertility in year t move with marriage and divorce in year t?</p>
+<p>M1 tests whether marriage alone explains fertility, M2 tests whether divorce alone explains fertility, and M3 examines what happens when both marriage and divorce are included together. Because marriage and divorce data are only available up to 2024, the regressions are estimated using the overlapping non-missing years.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Visual</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Code</a></li></ul>
 <div class="tab-content">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="cell">
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="correlation-analysis_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Comparison of correlations in levels and first differences</caption>
+<caption>Baseline regression model comparison</caption>
 <colgroup>
-<col style="width: 26%">
-<col style="width: 29%">
-<col style="width: 44%">
+<col style="width: 32%">
+<col style="width: 3%">
+<col style="width: 11%">
+<col style="width: 15%">
+<col style="width: 14%">
+<col style="width: 12%">
+<col style="width: 11%">
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Pair</th>
-<th style="text-align: right;">Correlation in Levels</th>
-<th style="text-align: right;">Correlation in First Differences</th>
+<th style="text-align: left;">model</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">r_squared</th>
+<th style="text-align: right;">marriage_coef</th>
+<th style="text-align: right;">divorce_coef</th>
+<th style="text-align: left;">marriage_p</th>
+<th style="text-align: left;">divorce_p</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">TFR vs Marriage</td>
-<td style="text-align: right;">0.878</td>
-<td style="text-align: right;">0.430</td>
+<td style="text-align: left;">M1: TFR ~ Marriage</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">0.771</td>
+<td style="text-align: right;">0.177</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">&lt;0.001</td>
+<td style="text-align: left;">NA</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">TFR vs Divorce</td>
-<td style="text-align: right;">-0.771</td>
-<td style="text-align: right;">-0.047</td>
+<td style="text-align: left;">M2: TFR ~ Divorce</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">0.595</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-0.552</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">&lt;0.001</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Marriage vs Divorce</td>
-<td style="text-align: right;">-0.884</td>
-<td style="text-align: right;">0.000</td>
+<td style="text-align: left;">M3: TFR ~ Marriage + Divorce</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">0.771</td>
+<td style="text-align: right;">0.182</td>
+<td style="text-align: right;">0.017</td>
+<td style="text-align: left;">&lt;0.001</td>
+<td style="text-align: left;">0.878</td>
 </tr>
 </tbody>
 </table>
 </div>
-</div>
-</div>
-<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># correlation matrix in levels</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>cor_levels <span class="ot">&lt;-</span> analysis_df <span class="sc">%&gt;%</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(tfr, marriage, divorce) <span class="sc">%&gt;%</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>(<span class="at">use =</span> <span class="st">"complete.obs"</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># clustered correlation plot</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>corrplot<span class="sc">::</span><span class="fu">corrplot</span>(</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  cor_levels,</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">"ellipse"</span>,</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">tl.col =</span> <span class="st">"black"</span>,</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">order =</span> <span class="st">"hclust"</span>,</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">hclust.method =</span> <span class="st">"ward.D2"</span>,</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">addrect =</span> <span class="dv">3</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># create first differences</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>diff_df <span class="ot">&lt;-</span> analysis_df <span class="sc">%&gt;%</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(year) <span class="sc">%&gt;%</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">dtfr =</span> tfr <span class="sc">-</span> <span class="fu">lag</span>(tfr),</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">dmarriage =</span> marriage <span class="sc">-</span> <span class="fu">lag</span>(marriage),</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">ddivorce =</span> divorce <span class="sc">-</span> <span class="fu">lag</span>(divorce)</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>()</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co"># correlation matrix in first differences</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>cor_diff <span class="ot">&lt;-</span> diff_df <span class="sc">%&gt;%</span></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(dtfr, dmarriage, ddivorce) <span class="sc">%&gt;%</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>(<span class="at">use =</span> <span class="st">"complete.obs"</span>)</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co"># comparison table</span></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>out_tbl <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">Pair =</span> <span class="fu">c</span>(<span class="st">"TFR vs Marriage"</span>, <span class="st">"TFR vs Divorce"</span>, <span class="st">"Marriage vs Divorce"</span>),</span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Correlation in Levels</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    cor_levels[<span class="st">"tfr"</span>, <span class="st">"marriage"</span>],</span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    cor_levels[<span class="st">"tfr"</span>, <span class="st">"divorce"</span>],</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    cor_levels[<span class="st">"marriage"</span>, <span class="st">"divorce"</span>]</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Correlation in First Differences</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    cor_diff[<span class="st">"dtfr"</span>, <span class="st">"dmarriage"</span>],</span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    cor_diff[<span class="st">"dtfr"</span>, <span class="st">"ddivorce"</span>],</span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    cor_diff[<span class="st">"dmarriage"</span>, <span class="st">"ddivorce"</span>]</span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>  out_tbl,</span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Comparison of correlations in levels and first differences"</span></span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="regression-analysis_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
 </div>
 </div>
 </div>
 <p><strong>Observation:</strong><br>
-The clustered correlation plot shows that TFR is positively associated with marriage and negatively associated with divorce, while marriage and divorce are also strongly negatively related to each other. However, the first-difference results show that these relationships are not equally robust after removing long-run trend effects. In particular, the TFR–divorce correlation weakens substantially after differencing, suggesting that its strong negative relationship in levels is largely trend-driven. By contrast, the TFR–marriage correlation remains moderately positive after differencing, indicating that some association is still present in year-to-year changes.</p>
+The baseline regression comparison shows that both marriage and divorce are individually associated with fertility when entered separately. The marriage-only model explains more variation in fertility (R2=0.771) than the divorce-only model (R2=0.595). When both variables are included together, the model fit does not improve beyond the marriage-only model (R2=0.771) and divorce is no longer statistically significant (p=0.878). This suggests that the two indicators may be capturing overlapping long-run demographic patterns, with marriage appearing to be the stronger predictor in the combined specification.</p>
+<p>The coefficient signs are also directionally consistent with the visual trends: marriage has a positive association with fertility, while divorce has a negative association when each is modelled separately.</p>
+<p>Note: Although the regression uses 45 overlapping annual observations, the EDA charts do not suggest major isolated outlier years. The series mainly exhibit long-run trends with moderate fluctuations, making the sample acceptable for simple exploratory regression models.</p>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(tfr <span class="sc">~</span> marriage, <span class="at">data =</span> analysis_df)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(tfr <span class="sc">~</span> divorce,  <span class="at">data =</span> analysis_df)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>m3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(tfr <span class="sc">~</span> marriage <span class="sc">+</span> divorce, <span class="at">data =</span> analysis_df)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>baseline_tbl <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"M1: TFR ~ Marriage"</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">"M2: TFR ~ Divorce"</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">"M3: TFR ~ Marriage + Divorce"</span>),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">n =</span> <span class="fu">c</span>(<span class="fu">nobs</span>(m1), <span class="fu">nobs</span>(m2), <span class="fu">nobs</span>(m3)),</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_squared =</span> <span class="fu">c</span>(<span class="fu">summary</span>(m1)<span class="sc">$</span>r.squared,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>                <span class="fu">summary</span>(m2)<span class="sc">$</span>r.squared,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>                <span class="fu">summary</span>(m3)<span class="sc">$</span>r.squared),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">marriage_coef =</span> <span class="fu">c</span>(<span class="fu">coef</span>(m1)[<span class="st">"marriage"</span>], <span class="cn">NA</span>, <span class="fu">coef</span>(m3)[<span class="st">"marriage"</span>]),</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">divorce_coef  =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="fu">coef</span>(m2)[<span class="st">"divorce"</span>], <span class="fu">coef</span>(m3)[<span class="st">"divorce"</span>]),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">marriage_p =</span> <span class="fu">c</span>(<span class="fu">coef</span>(<span class="fu">summary</span>(m1))[<span class="st">"marriage"</span>,<span class="st">"Pr(&gt;|t|)"</span>],</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>                 <span class="cn">NA</span>,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">coef</span>(<span class="fu">summary</span>(m3))[<span class="st">"marriage"</span>,<span class="st">"Pr(&gt;|t|)"</span>]),</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">divorce_p  =</span> <span class="fu">c</span>(<span class="cn">NA</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">coef</span>(<span class="fu">summary</span>(m2))[<span class="st">"divorce"</span>,<span class="st">"Pr(&gt;|t|)"</span>],</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">coef</span>(<span class="fu">summary</span>(m3))[<span class="st">"divorce"</span>,<span class="st">"Pr(&gt;|t|)"</span>])</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  baseline_tbl,</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Baseline regression model comparison"</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(baseline_tbl, <span class="fu">aes</span>(<span class="at">x =</span> model, <span class="at">y =</span> r_squared)) <span class="sc">+</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">round</span>(r_squared, <span class="dv">3</span>)), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"R2 Comparison Across Baseline Regression Models"</span>,</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Model"</span>,</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"R2"</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="dv">0</span>, <span class="fu">max</span>(baseline_tbl<span class="sc">$</span>r_squared) <span class="sc">+</span> <span class="fl">0.1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
-<hr>
+</div>
+</div>
+</div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>1.2: Rolling Correlation with TFR
+<span class="screen-reader-only">Note</span>1.2 Lagged Regression Models — Testing Delayed Effects
 </div>
 </div>
 <div class="callout-body-container callout-body">
+<p>These models test for delayed effects. Instead of examining whether fertility is associated with marriage and divorce in the same year, is current fertility more strongly related to marriage or divorce in earlier years, such as one or two years before. This is useful because marriage and childbirth do not always happen immediately one after another. A couple may marry in one year and only have children one or two years later. The lagged models therefore help to check whether earlier marriage or divorce patterns explain current fertility better than the current-year model.</p>
+<p>L1 tests whether fertility this year is associated with the marriage rate from two years earlier, L2 tests whether fertility this year is associated with the divorce rate from one year earlier, and L3 examines what happens when both lagged predictors are included together.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">Visual</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">Code</a></li></ul>
 <div class="tab-content">
 <div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
 <div class="cell">
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="correlation-analysis_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
+<table class="caption-top table table-sm table-striped small">
+<caption>Lagged regression model comparison</caption>
+<colgroup>
+<col style="width: 33%">
+<col style="width: 2%">
+<col style="width: 8%">
+<col style="width: 15%">
+<col style="width: 14%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">model</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">r_squared</th>
+<th style="text-align: right;">marriage_lag_coef</th>
+<th style="text-align: right;">divorce_lag_coef</th>
+<th style="text-align: left;">marriage_lag_p</th>
+<th style="text-align: left;">divorce_lag_p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">L1: TFR ~ Marriage(t-2)</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">0.636</td>
+<td style="text-align: right;">0.163</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">&lt;0.001</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">L2: TFR ~ Divorce(t-1)</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">0.557</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-0.561</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">&lt;0.001</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">L3: TFR ~ Marriage(t-2) + Divorce(t-1)</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">0.641</td>
+<td style="text-align: right;">0.134</td>
+<td style="text-align: right;">-0.119</td>
+<td style="text-align: left;">0.004</td>
+<td style="text-align: left;">0.460</td>
+</tr>
+</tbody>
+</table>
 </div>
-</div>
-</div>
-</div>
-<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>win <span class="ot">&lt;-</span> <span class="dv">10</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>roll_df <span class="ot">&lt;-</span> analysis_df <span class="sc">%&gt;%</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, tfr, marriage, divorce) <span class="sc">%&gt;%</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(year)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(roll_df)</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>years_end <span class="ot">&lt;-</span> roll_df<span class="sc">$</span>year[win<span class="sc">:</span>n]</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>cor_mar <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="fu">length</span>(years_end))</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>cor_div <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="fu">length</span>(years_end))</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> win<span class="sc">:</span>n) {</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> (i <span class="sc">-</span> win <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>i</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  cor_mar[i <span class="sc">-</span> win <span class="sc">+</span> <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">cor</span>(roll_df<span class="sc">$</span>tfr[idx], roll_df<span class="sc">$</span>marriage[idx], <span class="at">use =</span> <span class="st">"complete.obs"</span>)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  cor_div[i <span class="sc">-</span> win <span class="sc">+</span> <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">cor</span>(roll_df<span class="sc">$</span>tfr[idx], roll_df<span class="sc">$</span>divorce[idx], <span class="at">use =</span> <span class="st">"complete.obs"</span>)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>roll_out <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">year =</span> years_end,</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">TFR vs Marriage</span><span class="st">`</span> <span class="ot">=</span> cor_mar,</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">TFR vs Divorce</span><span class="st">`</span> <span class="ot">=</span> cor_div,</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">TFR vs Marriage</span><span class="st">`</span>, <span class="st">`</span><span class="at">TFR vs Divorce</span><span class="st">`</span>),</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"series"</span>,</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"correlation"</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(roll_out, <span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> correlation, <span class="at">colour =</span> series)) <span class="sc">+</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"Rolling Correlation with TFR (Window ="</span>, win, <span class="st">"years)"</span>),</span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Year"</span>,</span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="cn">NULL</span></span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>)</span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-<p><strong>Observation:</strong><br>
-The rolling correlations show that the association between TFR and marriage remains mostly positive across time, suggesting a relatively stable positive relationship over the long run. In contrast, the correlation between TFR and divorce varies substantially across periods, becoming strongly negative in some windows and positive in others. This indicates that marriage is a more consistent associated indicator of fertility in the dataset, while the relationship with divorce is less stable over time.</p>
-</div>
-</div>
-<hr>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>1.3 Hierarchical Clustering of Years by TFR, Marriage and Divorce
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<div class="tabset-margin-container"></div><div class="panel-tabset">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true" href="">Visual</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false" href="">Code</a></li></ul>
-<div class="tab-content">
-<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
-<div class="cell">
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="correlation-analysis_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="regression-analysis_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="regression-analysis_files/figure-html/unnamed-chunk-3-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="regression-analysis_files/figure-html/unnamed-chunk-3-3.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-</div>
-<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># prepare data for clustering</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>cluster_df <span class="ot">&lt;-</span> analysis_df <span class="sc">%&gt;%</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, tfr, marriage, divorce) <span class="sc">%&gt;%</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(year)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># standardise variables</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>cluster_mat <span class="ot">&lt;-</span> cluster_df <span class="sc">%&gt;%</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(tfr, marriage, divorce) <span class="sc">%&gt;%</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale</span>()</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># hierarchical clustering</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">dist</span>(cluster_mat, <span class="at">method =</span> <span class="st">"euclidean"</span>)</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>hc <span class="ot">&lt;-</span> <span class="fu">hclust</span>(d, <span class="at">method =</span> <span class="st">"ward.D2"</span>)</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># dendrogram</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hc, <span class="at">main =</span> <span class="st">"Hierarchical Clustering Dendrogram of Years"</span>)</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="fu">rect.hclust</span>(hc, <span class="at">k =</span> <span class="dv">3</span>, <span class="at">border =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
 <p><strong>Observation:</strong><br>
-Hierarchical clustering groups years according to similar combinations of TFR, marriage and divorce. The dendrogram indicates that the years can be divided into three broad clusters, suggesting that Singapore’s demographic patterns evolved across a few distinct phases over time.</p>
+The lagged regression models examine whether earlier marriage and divorce patterns are associated with current fertility. Among the single-predictor lagged models, lagged marriage explains more variation in fertility (R2 = 0.636) than lagged divorce (R2 = 0.557). When both lagged predictors are included together, the model fit increases only slightly (R2 = 0.641), with lagged marriage remaining statistically significant (p = 0.004) but lagged divorce becoming insignificant (p = 0.460). Compared with the baseline models, the lagged models do not provide a stronger fit, suggesting that delayed effects may exist but are not more informative than the current-year relationship.</p>
+<p>The scatterplots show that the direction of association remains consistent across the selected lag values: marriage retains a positive relationship with fertility, while divorce retains a negative relationship. However, the lagged patterns do not appear substantially stronger than the baseline same-year case, which is consistent with the regression results.</p>
+<p>Note: The scatterplots above use the same lag values as the regression models so that the visual comparisons align directly with the tested baseline and delayed-effect specifications.</p>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>lag_m <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>lag_d <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>analysis_lag <span class="ot">&lt;-</span> analysis_df <span class="sc">%&gt;%</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">marriage_lag =</span> <span class="fu">lag</span>(marriage, lag_m),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">divorce_lag  =</span> <span class="fu">lag</span>(divorce, lag_d)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(marriage_lag, divorce_lag, tfr)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>m_lag_mar <span class="ot">&lt;-</span> <span class="fu">lm</span>(tfr <span class="sc">~</span> marriage_lag, <span class="at">data =</span> analysis_lag)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>m_lag_div <span class="ot">&lt;-</span> <span class="fu">lm</span>(tfr <span class="sc">~</span> divorce_lag,  <span class="at">data =</span> analysis_lag)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>m_lag_both <span class="ot">&lt;-</span> <span class="fu">lm</span>(tfr <span class="sc">~</span> marriage_lag <span class="sc">+</span> divorce_lag, <span class="at">data =</span> analysis_lag)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>fmt_p <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ifelse</span>(</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">is.na</span>(x), <span class="cn">NA</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ifelse</span>(x <span class="sc">&lt;</span> <span class="fl">0.001</span>, <span class="st">"&lt;0.001"</span>, <span class="fu">sprintf</span>(<span class="st">"%.3f"</span>, x))</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>lag_tbl <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"L1: TFR ~ Marriage(t-2)"</span>,</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>            <span class="st">"L2: TFR ~ Divorce(t-1)"</span>,</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>            <span class="st">"L3: TFR ~ Marriage(t-2) + Divorce(t-1)"</span>),</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">n =</span> <span class="fu">c</span>(<span class="fu">nobs</span>(m_lag_mar), <span class="fu">nobs</span>(m_lag_div), <span class="fu">nobs</span>(m_lag_both)),</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_squared =</span> <span class="fu">c</span>(<span class="fu">summary</span>(m_lag_mar)<span class="sc">$</span>r.squared,</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>                <span class="fu">summary</span>(m_lag_div)<span class="sc">$</span>r.squared,</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>                <span class="fu">summary</span>(m_lag_both)<span class="sc">$</span>r.squared),</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">marriage_lag_coef =</span> <span class="fu">c</span>(<span class="fu">coef</span>(m_lag_mar)[<span class="st">"marriage_lag"</span>], <span class="cn">NA</span>, <span class="fu">coef</span>(m_lag_both)[<span class="st">"marriage_lag"</span>]),</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">divorce_lag_coef  =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="fu">coef</span>(m_lag_div)[<span class="st">"divorce_lag"</span>], <span class="fu">coef</span>(m_lag_both)[<span class="st">"divorce_lag"</span>]),</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">marriage_lag_p =</span> <span class="fu">fmt_p</span>(<span class="fu">c</span>(<span class="fu">coef</span>(<span class="fu">summary</span>(m_lag_mar))[<span class="st">"marriage_lag"</span>,<span class="st">"Pr(&gt;|t|)"</span>],</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>                           <span class="cn">NA</span>,</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">coef</span>(<span class="fu">summary</span>(m_lag_both))[<span class="st">"marriage_lag"</span>,<span class="st">"Pr(&gt;|t|)"</span>])),</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">divorce_lag_p  =</span> <span class="fu">fmt_p</span>(<span class="fu">c</span>(<span class="cn">NA</span>,</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">coef</span>(<span class="fu">summary</span>(m_lag_div))[<span class="st">"divorce_lag"</span>,<span class="st">"Pr(&gt;|t|)"</span>],</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">coef</span>(<span class="fu">summary</span>(m_lag_both))[<span class="st">"divorce_lag"</span>,<span class="st">"Pr(&gt;|t|)"</span>]))</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  lag_tbl,</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Lagged regression model comparison"</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(lag_tbl, <span class="fu">aes</span>(<span class="at">x =</span> model, <span class="at">y =</span> r_squared)) <span class="sc">+</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">round</span>(r_squared, <span class="dv">3</span>)), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"R2 Comparison Across Lagged Regression Models"</span>,</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Model"</span>,</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"R2"</span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="dv">0</span>, <span class="fu">max</span>(lag_tbl<span class="sc">$</span>r_squared) <span class="sc">+</span> <span class="fl">0.1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
-<hr>
+</div>
+</div>
+</div>
 
 
 </section>
