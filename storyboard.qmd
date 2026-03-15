@@ -1,7 +1,7 @@
 ---
 title: "Story Board for project: Singapore Fertility Trends: A Visual Analytics Study"
 author: "G1 T16 - Cheok En Qi and Teong Sze Ching"
-date: "March 1, 2026"
+date: "March 12, 2026"
 date-modified: "last-modified"
 execute: 
   eval: true
@@ -24,7 +24,7 @@ The purpose of this page is to orient users before they move into the detailed a
 knitr::include_graphics("data/home.png")
 ```
 
-## 2: Proposed layout of the EDA page
+## 2. Proposed layout of the EDA page
 
 The EDA page will allow users to interactively explore the main demographic trends in the dataset. This page will include line charts for total fertility rate, marriage, divorce, and age-specific fertility rates. Users will be able to filter the year range and select which age group they wish to display.
 
@@ -36,7 +36,7 @@ Possible Shiny UI components for this page include: (1) sliderInput() for year r
 knitr::include_graphics("data/EDA.png")
 ```
 
-## 3: Proposed layout of the Analytical Tasks
+## 3. Proposed layout of the Analytical Tasks
 
 The Analytical Tasks page will support deeper investigation into the relationship between fertility and related demographic indicators. This section will contain separate modules for correlation analysis and regression analysis.
 
@@ -49,7 +49,6 @@ The layout will consist of a control panel on the left and an output panel on th
 The output panel will display three main elements. First, a clustered correlation plot will summarise the overall correlation structure between total fertility rate, marriage, and divorce indicators. Second, a hierarchical clustering dendrogram will group years according to similar combinations of fertility, marriage, and divorce patterns so that users can identify broad phases in the demographic series. Third, a rolling correlation chart will show how the correlation between fertility and each indicator changes across time windows, allowing users to assess whether the observed relationships are stable or time-varying.
 
 Possible Shiny UI components for this page include: (1) sliderInput() for year range, (2) plotOutput() for the clustered correlation plot, (3) plotOutput() for the hierarchical clustering dendrogram, and (4) plotOutput() for the rolling correlation chart.
-
 
 ```{r}
 knitr::include_graphics("data/corr.png")
@@ -69,3 +68,14 @@ Possible Shiny UI components for this page include: (1) radioButtons() for choos
 knitr::include_graphics("data/regression.png")
 ```
 
+## 4. Package Selection Justification
+
+To support the development of the Shiny application, we selected packages based on clarity of output, ease of integration with Shiny, interpretability and suitability for the project scope.
+
+For visualisation, we selected **ggplot2** as the main charting library because it produces clear and consistent visual output, is easy to customise, and integrates well with Shiny through **plotOutput()**. It is well suited for presenting demographic time-series trends, scatterplots and rolling correlation charts in a structured and readable format.
+
+For correlation analysis, we used the **cor()** function to compute correlation matrices and the **corrplot** package to visualise them. This library was selected because it provides clear graphical representations of correlation structures, including clustered correlation matrices that help highlight relationships among fertility, marriage, and divorce indicators.
+
+For arranging multiple charts in the same output view, we used **patchwork** because it allows plots to be combined in a simple and flexible way while keeping the code readable.
+
+For statistical modelling, we used **lm()** for regression because they are sufficient for the scope of this project. Since the Shiny app is intended to support interactive exploration, simpler and more explainable models were preferred.

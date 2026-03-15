@@ -1,7 +1,7 @@
 ---
-title: "Data Prepartion and EDA: Singapore Fertility Trends: A Visual Analytics Study"
+title: "Data Preparation and EDA: Singapore Fertility Trends: A Visual Analytics Study"
 author: "G1 T16 - Cheok En Qi and Teong Sze Ching"
-date: "March 1, 2026"
+date: "February 28, 2026"
 date-modified: "last-modified"
 execute: 
   eval: true
@@ -9,18 +9,6 @@ execute:
   warning: false
   freeze: true
 ---
-
-## Background
-
-Singapore’s total fertility rate has fallen to a historic low, raising concerns about population ageing and long-term labour force sustainability. Fertility trends may be influenced by multiple demographic factors, including marriage, divorce, and birth postponement across age groups.
-
-The goal of this project is to build an interactive dashboard that helps users explore (i) how fertility has changed over time, and (ii) whether marriage and divorce indicators are statistically associated with fertility, including possible lag effects.
-
-This take home exercise 2 serve as the prototype for this project.
-
-```{r}
-knitr::include_graphics("data/article.jpg")
-```
 
 ## 1.0 Getting Started
 
@@ -660,11 +648,9 @@ The correlation matrix shows that TFR is strongly positively correlated with mar
 
 ------------------------------------------------------------------------
 
-
 ```{r}
 saveRDS(analysis_df, "data/analysis_df.rds")
 saveRDS(tfr_df, "data/tfr_df.rds")
 saveRDS(asfr_df, "data/asfr_df.rds")
 saveRDS(series_key, "data/series_key.rds")
 ```
-

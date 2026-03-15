@@ -11,17 +11,24 @@ website:
     collapse-below: lg
 
     left:
-      - text: "Singapore Fertility Trends: A Visual Analytics Study"
+      - text: "Singapore Fertility Trends: Project Proposal"
         menu:
-          - text: "Data Preparation and EDA"
+          - text: "1. Data Preparation & EDA"
             href: data-preparation-and-eda.qmd
-          - text: "Correlation Analysis"
+          - text: "2. Correlation Analysis"
             href: correlation-analysis.qmd
-          - text: "Regression Analysis"
+          - text: "3. Regression Analysis"
             href: regression-analysis.qmd
-          - text: "Storyboard"
+          - text: "4. Storyboard of Shiny App"
             href: storyboard.qmd
-
+          - text: "5. Work Allocation"
+            href: allocation.qmd
+      - text: "Meeting Minutes"
+        href: meeting.qmd
+      - text: "Shiny App"
+        href: ShinyApp/ISSS608 Group Project/app.R
+      - text: "Project Poster"
+        href: project_poster.qmd
     right:
       - icon: house
         href: index.qmd

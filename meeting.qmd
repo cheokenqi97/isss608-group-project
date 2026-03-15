@@ -1,0 +1,111 @@
+---
+title: "Meeting Minutes for project: Singapore Fertility Trends: A Visual Analytics Study"
+author: "G1 T16 - Cheok En Qi and Teong Sze Ching"
+date: "February 27, 2026"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+# Meeting Minutes
+
+Below is a summary of the key discussions and decisions made across our project timeline.
+
+# Meeting Minutes
+
+## Meeting 1 – Initial Project Discussion
+
+**Date:** 27 February 2026\
+**Attendees:** Cheok En Qi, Teong Sze Ching
+
+### Agenda
+
+-   Discuss project topic and scope
+-   Plan initial project tasks and responsibilities
+
+### Key Discussion Points
+
+-   The group had a brief initial discussion to find a dataset after the project description was released by the professor, prior to the first official meeting. This was an informal 5-minute face-to-face discussion and was not formally recorded.
+-   The group agreed to use the dataset from CEIC and selected Singapore Fertility Trends as the project topic due to its relevance to current demographic issues.
+-   Key variables identified included Total Fertility Rate (TFR), marriage rates, divorce rates, and age-specific fertility rates.
+-   The group discussed using visual analytics and statistical analysis to examine possible relationships among these variables.
+
+### Decisions Made
+
+-   Project title confirmed: Singapore Fertility Trends: A Visual Analytics Study
+-   Both members work on data cleaning and regroup on 3 March 2026 to share their EDA steps
+
+## Meeting 2 – Project Progress Review
+
+**Date:** 3 March 2026\
+**Attendees:** Cheok En Qi, Teong Sze Ching
+
+### Agenda
+
+-   Review progress on data cleaning
+-   Discuss early observations from the data (EDA)
+-   Plan next analytical steps
+
+### Key Discussion Points
+
+-   Data cleaning was completed for the dataset.
+-   Initial exploratory analysis revealed a declining fertility trend in recent years.
+-   The group discussed possible lag effects, where changes in marriage trends may influence fertility outcomes after several years.
+-   Visualisation approaches for the project website were also discussed, and the group agreed on the colour tone of the website.
+
+### Decisions Made
+
+-   Both members would proceed with EDA, while ensuring that their work did not overlap.
+-   The group agreed to prioritise correlation and regression analysis over time-series forecasting, in order to focus on the exploratory and explanatory analysis of fertility trends and their relationships with marriage and divorce indicators.
+-   En Qi would proceed with correlation analysis to examine relationships between fertility, marriage, and divorce indicators.
+-   Sze Ching would proceed with regression analysis.
+-   Both members would work on storyboarding.
+-   The group would regroup on 14 March 2026.
+
+## Meeting 3 – Project Development Review
+
+**Date:** 14 March 2026\
+**Attendees:** Cheok En Qi, Teong Sze Ching
+
+### Agenda
+
+-   Review progress on EDA, analysis pages, and storyboarding
+-   Plan Shiny app development
+-   Build website for project proposal submission
+
+### Key Discussion Points
+
+-   Correlation analysis showed several moderate relationships between fertility and marriage indicators.
+-   Regression analysis was progressing, with a focus on understanding the statistical associations between demographic variables and fertility trends.
+-   The group agreed to structure the Shiny app into the following sections:
+    -   Home Page
+    -   EDA Page
+    -   Correlation Analysis Page
+    -   Regression Analysis Page
+
+### Decisions Made
+
+-   En Qi built the project proposal website on the same day and incorporated the relevant project information into it.
+
+-   For shiny app development:En Qi would develop the Home Page and Correlation Page. Sze Ching would develop the EDA Page and Regression Page.
+
+## Meeting 4 – Final Submission Preparation
+
+**Date:** 29 March 2026\
+**Attendees:** Cheok En Qi, Teong Sze Ching
+
+### Agenda
+
+-   Finalise project items
+-   Prepare poster
+
+### Key Discussion Points
+
+TBA
+
+### Decisions Made
+
+TBA

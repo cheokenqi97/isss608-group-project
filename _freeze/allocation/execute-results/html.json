@@ -1,0 +1,15 @@
+{
+  "hash": "ae337e246e9baa72762e7878f67bf560",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Work Allocation for project: Singapore Fertility Trends: A Visual Analytics Study\"\nauthor: \"G1 T16 - Cheok En Qi and Teong Sze Ching\"\ndate: \"March 15, 2026\"\ndate-modified: \"last-modified\"\nexecute: \n  eval: true\n  echo: true\n  warning: false\n  freeze: true\n---\n\n# Work Allocation Overview\n\nIn order to meet the time line for our project, below is our proposed schedule\n\n\n::: {.cell layout-align=\"center\"}\n::: {.cell-output-display}\n![](data/schedule.png){fig-align='center' width=100% height=350px}\n:::\n:::\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

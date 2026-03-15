@@ -1,7 +1,7 @@
 ---
 title: "Regression Analysis: Singapore Fertility Trends: A Visual Analytics Study"
 author: "G1 T16 - Cheok En Qi and Teong Sze Ching"
-date: "March 1, 2026"
+date: "March 6, 2026"
 date-modified: "last-modified"
 execute: 
   eval: true

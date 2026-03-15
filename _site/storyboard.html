@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="G1 T16 - Cheok En Qi and Teong Sze Ching">
-<meta name="dcterms.date" content="2026-03-01">
+<meta name="dcterms.date" content="2026-03-12">
 
 <title>Story Board for project: Singapore Fertility Trends: A Visual Analytics Study – Group Project</title>
 <style>
@@ -129,28 +129,44 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-singapore-fertility-trends-a-visual-analytics-study" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Singapore Fertility Trends: A Visual Analytics Study</span>
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-singapore-fertility-trends-project-proposal" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Singapore Fertility Trends: Project Proposal</span>
     </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-singapore-fertility-trends-a-visual-analytics-study">    
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-singapore-fertility-trends-project-proposal">    
         <li>
     <a class="dropdown-item" href="./data-preparation-and-eda.html">
- <span class="dropdown-text">Data Preparation and EDA</span></a>
+ <span class="dropdown-text">1. Data Preparation &amp; EDA</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./correlation-analysis.html">
- <span class="dropdown-text">Correlation Analysis</span></a>
+ <span class="dropdown-text">2. Correlation Analysis</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./regression-analysis.html">
- <span class="dropdown-text">Regression Analysis</span></a>
+ <span class="dropdown-text">3. Regression Analysis</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./storyboard.html">
- <span class="dropdown-text">Storyboard</span></a>
+ <span class="dropdown-text">4. Storyboard of Shiny App</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./allocation.html">
+ <span class="dropdown-text">5. Work Allocation</span></a>
   </li>  
     </ul>
   </li>
+  <li class="nav-item">
+    <a class="nav-link" href="./meeting.html"> 
+<span class="menu-text">Meeting Minutes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./ShinyApp/ISSS608 Group Project/app.R"> 
+<span class="menu-text">Shiny App</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./project_poster.html"> 
+<span class="menu-text">Project Poster</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
@@ -182,12 +198,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#story-board-overview" id="toc-story-board-overview" class="nav-link active" data-scroll-target="#story-board-overview">Story Board Overview</a>
   <ul class="collapse">
   <li><a href="#home-page" id="toc-home-page" class="nav-link" data-scroll-target="#home-page">1. Home Page</a></li>
-  <li><a href="#proposed-layout-of-the-eda-page" id="toc-proposed-layout-of-the-eda-page" class="nav-link" data-scroll-target="#proposed-layout-of-the-eda-page">2: Proposed layout of the EDA page</a></li>
-  <li><a href="#proposed-layout-of-the-analytical-tasks" id="toc-proposed-layout-of-the-analytical-tasks" class="nav-link" data-scroll-target="#proposed-layout-of-the-analytical-tasks">3: Proposed layout of the Analytical Tasks</a>
+  <li><a href="#proposed-layout-of-the-eda-page" id="toc-proposed-layout-of-the-eda-page" class="nav-link" data-scroll-target="#proposed-layout-of-the-eda-page">2. Proposed layout of the EDA page</a></li>
+  <li><a href="#proposed-layout-of-the-analytical-tasks" id="toc-proposed-layout-of-the-analytical-tasks" class="nav-link" data-scroll-target="#proposed-layout-of-the-analytical-tasks">3. Proposed layout of the Analytical Tasks</a>
   <ul class="collapse">
   <li><a href="#correlation-analysis" id="toc-correlation-analysis" class="nav-link" data-scroll-target="#correlation-analysis">3.1 Correlation Analysis</a></li>
   <li><a href="#regression-analysis" id="toc-regression-analysis" class="nav-link" data-scroll-target="#regression-analysis">3.2 Regression Analysis</a></li>
   </ul></li>
+  <li><a href="#package-selection-justification" id="toc-package-selection-justification" class="nav-link" data-scroll-target="#package-selection-justification">4. Package Selection Justification</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -214,14 +231,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 1, 2026</p>
+      <p class="date">March 12, 2026</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">March 14, 2026</p>
+      <p class="date-modified">March 15, 2026</p>
     </div>
   </div>
     
@@ -251,7 +268,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section>
 <section id="proposed-layout-of-the-eda-page" class="level2">
-<h2 class="anchored" data-anchor-id="proposed-layout-of-the-eda-page">2: Proposed layout of the EDA page</h2>
+<h2 class="anchored" data-anchor-id="proposed-layout-of-the-eda-page">2. Proposed layout of the EDA page</h2>
 <p>The EDA page will allow users to interactively explore the main demographic trends in the dataset. This page will include line charts for total fertility rate, marriage, divorce, and age-specific fertility rates. Users will be able to filter the year range and select which age group they wish to display.</p>
 <p>The purpose of this page is to help users identify broad patterns before moving into more formal analysis. For example, users can observe when fertility started declining, whether marriage and divorce indicators move in similar or opposite directions, and whether fertility has shifted towards older age groups over time.</p>
 <p>Possible Shiny UI components for this page include: (1) sliderInput() for year range, (2) radioButtons() for selecting age bands, (3) using plotOutput() for interactive charts</p>
@@ -267,7 +284,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section>
 <section id="proposed-layout-of-the-analytical-tasks" class="level2">
-<h2 class="anchored" data-anchor-id="proposed-layout-of-the-analytical-tasks">3: Proposed layout of the Analytical Tasks</h2>
+<h2 class="anchored" data-anchor-id="proposed-layout-of-the-analytical-tasks">3. Proposed layout of the Analytical Tasks</h2>
 <p>The Analytical Tasks page will support deeper investigation into the relationship between fertility and related demographic indicators. This section will contain separate modules for correlation analysis and regression analysis.</p>
 <section id="correlation-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="correlation-analysis">3.1 Correlation Analysis</h3>
@@ -302,9 +319,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-
-
 </section>
+</section>
+<section id="package-selection-justification" class="level2">
+<h2 class="anchored" data-anchor-id="package-selection-justification">4. Package Selection Justification</h2>
+<p>To support the development of the Shiny application, we selected packages based on clarity of output, ease of integration with Shiny, interpretability and suitability for the project scope.</p>
+<p>For visualisation, we selected <strong>ggplot2</strong> as the main charting library because it produces clear and consistent visual output, is easy to customise, and integrates well with Shiny through <strong>plotOutput()</strong>. It is well suited for presenting demographic time-series trends, scatterplots and rolling correlation charts in a structured and readable format.</p>
+<p>For correlation analysis, we used the <strong>cor()</strong> function to compute correlation matrices and the <strong>corrplot</strong> package to visualise them. This library was selected because it provides clear graphical representations of correlation structures, including clustered correlation matrices that help highlight relationships among fertility, marriage, and divorce indicators.</p>
+<p>For arranging multiple charts in the same output view, we used <strong>patchwork</strong> because it allows plots to be combined in a simple and flexible way while keeping the code readable.</p>
+<p>For statistical modelling, we used <strong>lm()</strong> for regression because they are sufficient for the scope of this project. Since the Shiny app is intended to support interactive exploration, simpler and more explainable models were preferred.</p>
+
+
 </section>
 </section>
 
