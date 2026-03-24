@@ -15,9 +15,9 @@ website:
         menu:
           - text: "1. Data Preparation & EDA"
             href: data-preparation-and-eda.qmd
-          - text: "2. Correlation Analysis"
+          - text: "2. Cross Correlation Analysis"
             href: correlation-analysis.qmd
-          - text: "3. Regression Analysis"
+          - text: "3. Panel Regression Analysis"
             href: regression-analysis.qmd
           - text: "4. Storyboard of Shiny App"
             href: storyboard.qmd

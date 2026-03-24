@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="G1 T16 - Cheok En Qi and Teong Sze Ching">
-<meta name="dcterms.date" content="2026-03-01">
+<meta name="dcterms.date" content="2026-03-06">
 
-<title>Correlation Analysis: Singapore Fertility Trends: A Visual Analytics Study – Group Project</title>
+<title>Cross-Correlation Analysis: Singapore Fertility Trends: A Visual Analytics Study – Group Project</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -106,6 +106,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
+<link href="site_libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.11.0/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
+<link href="site_libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+<script src="site_libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
 
 
 <link rel="stylesheet" href="styles.css">
@@ -139,11 +148,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
         <li>
     <a class="dropdown-item" href="./correlation-analysis.html">
- <span class="dropdown-text">2. Correlation Analysis</span></a>
+ <span class="dropdown-text">2. Cross Correlation Analysis</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./regression-analysis.html">
- <span class="dropdown-text">3. Regression Analysis</span></a>
+ <span class="dropdown-text">3. Panel Regression Analysis</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./storyboard.html">
@@ -195,8 +204,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#load-dataset" id="toc-load-dataset" class="nav-link active" data-scroll-target="#load-dataset">load dataset</a></li>
-  <li><a href="#correlation-analysis" id="toc-correlation-analysis" class="nav-link" data-scroll-target="#correlation-analysis">Correlation Analysis</a></li>
+  <li><a href="#load-dataset" id="toc-load-dataset" class="nav-link active" data-scroll-target="#load-dataset">Load dataset</a></li>
+  <li><a href="#cross-correlation-analysis" id="toc-cross-correlation-analysis" class="nav-link" data-scroll-target="#cross-correlation-analysis">Cross-Correlation Analysis</a>
+  <ul class="collapse">
+  <li><a href="#organising-the-eda-output-for-cross-correlation" id="toc-organising-the-eda-output-for-cross-correlation" class="nav-link" data-scroll-target="#organising-the-eda-output-for-cross-correlation">1.1 Organising the EDA Output for Cross-Correlation</a></li>
+  <li><a href="#cross-correlation-between-tfr-and-marriage" id="toc-cross-correlation-between-tfr-and-marriage" class="nav-link" data-scroll-target="#cross-correlation-between-tfr-and-marriage">1.2 Cross-Correlation Between TFR and Marriage</a></li>
+  <li><a href="#cross-correlation-between-tfr-and-divorce" id="toc-cross-correlation-between-tfr-and-divorce" class="nav-link" data-scroll-target="#cross-correlation-between-tfr-and-divorce">1.3 Cross-Correlation Between TFR and Divorce</a></li>
+  <li><a href="#combined-view-of-section-1.2-and-1.3" id="toc-combined-view-of-section-1.2-and-1.3" class="nav-link" data-scroll-target="#combined-view-of-section-1.2-and-1.3">1.4 Combined view of Section 1.2 and 1.3</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -205,7 +221,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Correlation Analysis: Singapore Fertility Trends: A Visual Analytics Study</h1>
+<h1 class="title">Cross-Correlation Analysis: Singapore Fertility Trends: A Visual Analytics Study</h1>
 </div>
 
 
@@ -222,14 +238,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 1, 2026</p>
+      <p class="date">March 6, 2026</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">March 15, 2026</p>
+      <p class="date-modified">March 24, 2026</p>
     </div>
   </div>
     
@@ -241,72 +257,118 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <section id="load-dataset" class="level2">
-<h2 class="anchored" data-anchor-id="load-dataset">load dataset</h2>
+<h2 class="anchored" data-anchor-id="load-dataset">Load dataset</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, corrplot, knitr, patchwork)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, knitr, patchwork, TSstudio)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>analysis_df <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/analysis_df.rds"</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>tfr_df <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/tfr_df.rds"</span>)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>asfr_df <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/asfr_df.rds"</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>series_key <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/series_key.rds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>series_key <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/series_key.rds"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>extract_ccf_tbl <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, x_name, y_name, <span class="at">lag_max =</span> <span class="dv">5</span>) {</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  ccf_obj <span class="ot">&lt;-</span> <span class="fu">ccf</span>(x, y, <span class="at">lag.max =</span> lag_max, <span class="at">plot =</span> <span class="cn">FALSE</span>, <span class="at">na.action =</span> na.omit)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">lag =</span> <span class="fu">as.numeric</span>(ccf_obj<span class="sc">$</span>lag),</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">correlation =</span> <span class="fu">as.numeric</span>(ccf_obj<span class="sc">$</span>acf),</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">pair =</span> <span class="fu">paste</span>(x_name, <span class="st">"vs"</span>, y_name)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>get_peak_ccf <span class="ot">&lt;-</span> <span class="cf">function</span>(df, pair_name) {</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  df <span class="sc">%&gt;%</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">slice_max</span>(<span class="at">order_by =</span> <span class="fu">abs</span>(correlation), <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">transmute</span>(</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">Pair =</span> pair_name,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">Peak Lag (Years)</span><span class="st">`</span> <span class="ot">=</span> lag,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">Peak Correlation</span><span class="st">`</span> <span class="ot">=</span> correlation</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="correlation-analysis" class="level1">
-<h1>Correlation Analysis</h1>
-<p>This section presents on correlation-based analysis and related association checks. In particular, this examine how total fertility rate (TFR) is associated with marriage and divorce indicators, and whether these relationships remain stable when trends, timing differences, and time variation are taken into account.</p>
-<p>The correlation component is designed to support the planned Shiny application, where users will be able to interactively explore the strength, direction, and stability of these relationships. This helps complement the descriptive visualisations by providing a more structured analytical layer for understanding how fertility patterns move alongside marriage and divorce indicators over time.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>1.1: Correlation in Levels and First Differences
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<section id="cross-correlation-analysis" class="level1">
+<h1>Cross-Correlation Analysis</h1>
+<p>Our group uses cross-correlation analysis to explore how fertility, marriage, and divorce move relative to one another across different lags. Unlike ordinary correlation, Cross-correlation captures the direction, strength and timing of co-movement between fertility and the demographic indicators, showing whether the series move together or in opposite directions, how strong that pattern is, and the lag at which it is strongest. This is useful for exploring demographic timing, such as whether changes in marriage or divorce tend to occur earlier or later than changes in total fertility rate (TFR).</p>
+<p>The results should be interpreted as exploratory evidence of co-movement across time rather than proof of cause and effect. They are also intended to complement the regression section by helping to identify which lag values may be worth testing for later modelling.</p>
+<section id="organising-the-eda-output-for-cross-correlation" class="level2">
+<h2 class="anchored" data-anchor-id="organising-the-eda-output-for-cross-correlation">1.1 Organising the EDA Output for Cross-Correlation</h2>
+<p>The dataset prepared in the EDA section is already suitable for cross-correlation analysis. The main requirement is to keep the yearly observations in chronological order and retain the variables needed for the lead-lag comparison: TFR, marriage, and divorce.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Visual</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Code</a></li></ul>
 <div class="tab-content">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="cell">
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="correlation-analysis_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Comparison of correlations in levels and first differences</caption>
-<colgroup>
-<col style="width: 26%">
-<col style="width: 29%">
-<col style="width: 44%">
-</colgroup>
+<caption>Sample of the yearly dataset used for cross-correlation analysis</caption>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Pair</th>
-<th style="text-align: right;">Correlation in Levels</th>
-<th style="text-align: right;">Correlation in First Differences</th>
+<th style="text-align: right;">year</th>
+<th style="text-align: right;">tfr</th>
+<th style="text-align: right;">marriage</th>
+<th style="text-align: right;">divorce</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">TFR vs Marriage</td>
-<td style="text-align: right;">0.878</td>
-<td style="text-align: right;">0.430</td>
+<td style="text-align: right;">1980</td>
+<td style="text-align: right;">1.82</td>
+<td style="text-align: right;">9.8</td>
+<td style="text-align: right;">0.8</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">TFR vs Divorce</td>
-<td style="text-align: right;">-0.771</td>
-<td style="text-align: right;">-0.047</td>
+<td style="text-align: right;">1981</td>
+<td style="text-align: right;">1.78</td>
+<td style="text-align: right;">10.6</td>
+<td style="text-align: right;">0.9</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Marriage vs Divorce</td>
-<td style="text-align: right;">-0.884</td>
-<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1982</td>
+<td style="text-align: right;">1.74</td>
+<td style="text-align: right;">9.7</td>
+<td style="text-align: right;">0.9</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1983</td>
+<td style="text-align: right;">1.61</td>
+<td style="text-align: right;">9.0</td>
+<td style="text-align: right;">1.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1984</td>
+<td style="text-align: right;">1.62</td>
+<td style="text-align: right;">9.8</td>
+<td style="text-align: right;">0.9</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1985</td>
+<td style="text-align: right;">1.61</td>
+<td style="text-align: right;">9.2</td>
+<td style="text-align: right;">0.9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1986</td>
+<td style="text-align: right;">1.43</td>
+<td style="text-align: right;">7.7</td>
+<td style="text-align: right;">1.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1987</td>
+<td style="text-align: right;">1.62</td>
+<td style="text-align: right;">8.9</td>
+<td style="text-align: right;">1.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1988</td>
+<td style="text-align: right;">1.96</td>
+<td style="text-align: right;">9.3</td>
+<td style="text-align: right;">1.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1989</td>
+<td style="text-align: right;">1.75</td>
+<td style="text-align: right;">8.7</td>
+<td style="text-align: right;">1.1</td>
 </tr>
 </tbody>
 </table>
@@ -314,196 +376,344 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># correlation matrix in levels</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>cor_levels <span class="ot">&lt;-</span> analysis_df <span class="sc">%&gt;%</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(tfr, marriage, divorce) <span class="sc">%&gt;%</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>(<span class="at">use =</span> <span class="st">"complete.obs"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>ccf_df <span class="ot">&lt;-</span> analysis_df <span class="sc">%&gt;%</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, tfr, marriage, divorce) <span class="sc">%&gt;%</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(year)</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># clustered correlation plot</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>corrplot<span class="sc">::</span><span class="fu">corrplot</span>(</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  cor_levels,</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">"ellipse"</span>,</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">tl.col =</span> <span class="st">"black"</span>,</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">order =</span> <span class="st">"hclust"</span>,</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">hclust.method =</span> <span class="st">"ward.D2"</span>,</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">addrect =</span> <span class="dv">3</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># create first differences</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>diff_df <span class="ot">&lt;-</span> analysis_df <span class="sc">%&gt;%</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(year) <span class="sc">%&gt;%</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">dtfr =</span> tfr <span class="sc">-</span> <span class="fu">lag</span>(tfr),</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">dmarriage =</span> marriage <span class="sc">-</span> <span class="fu">lag</span>(marriage),</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">ddivorce =</span> divorce <span class="sc">-</span> <span class="fu">lag</span>(divorce)</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>()</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co"># correlation matrix in first differences</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>cor_diff <span class="ot">&lt;-</span> diff_df <span class="sc">%&gt;%</span></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(dtfr, dmarriage, ddivorce) <span class="sc">%&gt;%</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>(<span class="at">use =</span> <span class="st">"complete.obs"</span>)</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co"># comparison table</span></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>out_tbl <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">Pair =</span> <span class="fu">c</span>(<span class="st">"TFR vs Marriage"</span>, <span class="st">"TFR vs Divorce"</span>, <span class="st">"Marriage vs Divorce"</span>),</span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Correlation in Levels</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    cor_levels[<span class="st">"tfr"</span>, <span class="st">"marriage"</span>],</span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    cor_levels[<span class="st">"tfr"</span>, <span class="st">"divorce"</span>],</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    cor_levels[<span class="st">"marriage"</span>, <span class="st">"divorce"</span>]</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Correlation in First Differences</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    cor_diff[<span class="st">"dtfr"</span>, <span class="st">"dmarriage"</span>],</span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    cor_diff[<span class="st">"dtfr"</span>, <span class="st">"ddivorce"</span>],</span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    cor_diff[<span class="st">"dmarriage"</span>, <span class="st">"ddivorce"</span>]</span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>  out_tbl,</span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Comparison of correlations in levels and first differences"</span></span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>ccf_preview <span class="ot">&lt;-</span> ccf_df <span class="sc">%&gt;%</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  ccf_preview,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Sample of the yearly dataset used for cross-correlation analysis"</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-</div>
-</div>
-<p><strong>Observation:</strong><br>
-The clustered correlation plot shows that TFR is positively associated with marriage and negatively associated with divorce, while marriage and divorce are also strongly negatively related to each other. However, the first-difference results show that these relationships are not equally robust after removing long-run trend effects. In particular, the TFR–divorce correlation weakens substantially after differencing, suggesting that its strong negative relationship in levels is largely trend-driven. By contrast, the TFR–marriage correlation remains moderately positive after differencing, indicating that some association is still present in year-to-year changes.</p>
 </div>
 </div>
 <hr>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>1.2: Rolling Correlation with TFR
-</div>
-</div>
-<div class="callout-body-container callout-body">
+</section>
+<section id="cross-correlation-between-tfr-and-marriage" class="level2">
+<h2 class="anchored" data-anchor-id="cross-correlation-between-tfr-and-marriage">1.2 Cross-Correlation Between TFR and Marriage</h2>
+<p>This section explores whether the co-movement between TFR and marriage is strongest in the same year or at earlier or later years. This helps answer the following question:</p>
+<p>“Does marriage move most closely with fertility in the same year or does the strongest pattern appear with a time shift?”</p>
+<p>A 5-year lag window was chosen since changes in marriage and fertility are more likely to be related within a reasonably near time horizon rather than over very long lags.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">Visual</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">Code</a></li></ul>
 <div class="tab-content">
 <div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
 <div class="cell">
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="correlation-analysis_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-877b6d0296837ac4a3bf" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-877b6d0296837ac4a3bf">{"x":{"data":[{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001,1.1200000000000001,1.04,0.96999999999999997,0.96999999999999997],"y":[9.8000000000000025,10.6,9.7000000000000011,9,9.8000000000000025,9.2000000000000011,7.7000000000000002,8.9000000000000004,9.3000000000000025,8.7000000000000011,8.5999999999999996,8.7000000000000011,8.9000000000000004,8.5999999999999996,8.2000000000000011,8.0999999999999996,7.7000000000000002,8.0999999999999996,7.0999999999999996,7.7999999999999998,6.7000000000000002,6.5,6.5999999999999996,6.2999999999999998,6.2999999999999998,6.4000000000000004,6.5,6.4000000000000004,6.5,6.5999999999999996,6.0999999999999996,6.7000000000000002,6.7000000000000002,6.2999999999999998,6.7999999999999998,6.7000000000000002,6.5999999999999996,6.5999999999999996,6.4000000000000004,5.9000000000000004,5.2000000000000002,6.5,6.7000000000000002,6.4000000000000004,5.9000000000000004],"mode":"markers","type":"scatter","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001,1.1200000000000001,1.04,0.96999999999999997],"y":[10.6,9.7000000000000011,9,9.8000000000000025,9.2000000000000011,7.7000000000000002,8.9000000000000004,9.3000000000000025,8.7000000000000011,8.5999999999999996,8.7000000000000011,8.9000000000000004,8.5999999999999996,8.2000000000000011,8.0999999999999996,7.7000000000000002,8.0999999999999996,7.0999999999999996,7.7999999999999998,6.7000000000000002,6.5,6.5999999999999996,6.2999999999999998,6.2999999999999998,6.4000000000000004,6.5,6.4000000000000004,6.5,6.5999999999999996,6.0999999999999996,6.7000000000000002,6.7000000000000002,6.2999999999999998,6.7999999999999998,6.7000000000000002,6.5999999999999996,6.5999999999999996,6.4000000000000004,5.9000000000000004,5.2000000000000002,6.5,6.7000000000000002,6.4000000000000004,5.9000000000000004],"mode":"markers","type":"scatter","marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"line":{"color":"rgba(255,127,14,1)"},"xaxis":"x2","yaxis":"y","frame":null},{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001,1.1200000000000001,1.04],"y":[9.7000000000000011,9,9.8000000000000025,9.2000000000000011,7.7000000000000002,8.9000000000000004,9.3000000000000025,8.7000000000000011,8.5999999999999996,8.7000000000000011,8.9000000000000004,8.5999999999999996,8.2000000000000011,8.0999999999999996,7.7000000000000002,8.0999999999999996,7.0999999999999996,7.7999999999999998,6.7000000000000002,6.5,6.5999999999999996,6.2999999999999998,6.2999999999999998,6.4000000000000004,6.5,6.4000000000000004,6.5,6.5999999999999996,6.0999999999999996,6.7000000000000002,6.7000000000000002,6.2999999999999998,6.7999999999999998,6.7000000000000002,6.5999999999999996,6.5999999999999996,6.4000000000000004,5.9000000000000004,5.2000000000000002,6.5,6.7000000000000002,6.4000000000000004,5.9000000000000004],"mode":"markers","type":"scatter","marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"line":{"color":"rgba(44,160,44,1)"},"xaxis":"x3","yaxis":"y","frame":null},{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001,1.1200000000000001],"y":[9,9.8000000000000025,9.2000000000000011,7.7000000000000002,8.9000000000000004,9.3000000000000025,8.7000000000000011,8.5999999999999996,8.7000000000000011,8.9000000000000004,8.5999999999999996,8.2000000000000011,8.0999999999999996,7.7000000000000002,8.0999999999999996,7.0999999999999996,7.7999999999999998,6.7000000000000002,6.5,6.5999999999999996,6.2999999999999998,6.2999999999999998,6.4000000000000004,6.5,6.4000000000000004,6.5,6.5999999999999996,6.0999999999999996,6.7000000000000002,6.7000000000000002,6.2999999999999998,6.7999999999999998,6.7000000000000002,6.5999999999999996,6.5999999999999996,6.4000000000000004,5.9000000000000004,5.2000000000000002,6.5,6.7000000000000002,6.4000000000000004,5.9000000000000004],"mode":"markers","type":"scatter","marker":{"color":"rgba(214,39,40,1)","line":{"color":"rgba(214,39,40,1)"}},"error_y":{"color":"rgba(214,39,40,1)"},"error_x":{"color":"rgba(214,39,40,1)"},"line":{"color":"rgba(214,39,40,1)"},"xaxis":"x","yaxis":"y2","frame":null},{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001],"y":[9.8000000000000025,9.2000000000000011,7.7000000000000002,8.9000000000000004,9.3000000000000025,8.7000000000000011,8.5999999999999996,8.7000000000000011,8.9000000000000004,8.5999999999999996,8.2000000000000011,8.0999999999999996,7.7000000000000002,8.0999999999999996,7.0999999999999996,7.7999999999999998,6.7000000000000002,6.5,6.5999999999999996,6.2999999999999998,6.2999999999999998,6.4000000000000004,6.5,6.4000000000000004,6.5,6.5999999999999996,6.0999999999999996,6.7000000000000002,6.7000000000000002,6.2999999999999998,6.7999999999999998,6.7000000000000002,6.5999999999999996,6.5999999999999996,6.4000000000000004,5.9000000000000004,5.2000000000000002,6.5,6.7000000000000002,6.4000000000000004,5.9000000000000004],"mode":"markers","type":"scatter","marker":{"color":"rgba(148,103,189,1)","line":{"color":"rgba(148,103,189,1)"}},"error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"line":{"color":"rgba(148,103,189,1)"},"xaxis":"x2","yaxis":"y2","frame":null},{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001],"y":[9.2000000000000011,7.7000000000000002,8.9000000000000004,9.3000000000000025,8.7000000000000011,8.5999999999999996,8.7000000000000011,8.9000000000000004,8.5999999999999996,8.2000000000000011,8.0999999999999996,7.7000000000000002,8.0999999999999996,7.0999999999999996,7.7999999999999998,6.7000000000000002,6.5,6.5999999999999996,6.2999999999999998,6.2999999999999998,6.4000000000000004,6.5,6.4000000000000004,6.5,6.5999999999999996,6.0999999999999996,6.7000000000000002,6.7000000000000002,6.2999999999999998,6.7999999999999998,6.7000000000000002,6.5999999999999996,6.5999999999999996,6.4000000000000004,5.9000000000000004,5.2000000000000002,6.5,6.7000000000000002,6.4000000000000004,5.9000000000000004],"mode":"markers","type":"scatter","marker":{"color":"rgba(140,86,75,1)","line":{"color":"rgba(140,86,75,1)"}},"error_y":{"color":"rgba(140,86,75,1)"},"error_x":{"color":"rgba(140,86,75,1)"},"line":{"color":"rgba(140,86,75,1)"},"xaxis":"x3","yaxis":"y2","frame":null}],"layout":{"xaxis":{"domain":[0,0.3133333333333333],"automargin":true,"title":"","range":[0.96757500000000007,2.0579999999999998],"anchor":"y2"},"xaxis2":{"domain":[0.35333333333333333,0.64666666666666661],"automargin":true,"title":"","range":[0.96757500000000007,2.0579999999999998],"anchor":"y2"},"xaxis3":{"domain":[0.68666666666666665,1],"automargin":true,"title":"","range":[0.96757500000000007,2.0579999999999998],"anchor":"y2"},"yaxis2":{"domain":[0,0.47999999999999998],"automargin":true,"range":[5.1869999999999994,11.130000000000001],"title":[],"anchor":"x"},"yaxis":{"domain":[0.52000000000000002,1],"automargin":true,"range":[5.1869999999999994,11.130000000000001],"title":[],"anchor":"x"},"annotations":[{"text":"Lag 0 (0.878)","xref":"paper","yref":"paper","yanchor":"bottom","xanchor":"center","align":"center","x":0.15666666666666665,"y":0.95199999999999996,"showarrow":false},{"text":"Lag 1 (0.769)","xref":"paper","yref":"paper","yanchor":"bottom","xanchor":"center","align":"center","x":0.5,"y":0.95199999999999996,"showarrow":false},{"text":"Lag 2 (0.671)","xref":"paper","yref":"paper","yanchor":"bottom","xanchor":"center","align":"center","x":0.84333333333333327,"y":0.95199999999999996,"showarrow":false},{"text":"Lag 3 (0.596)","xref":"paper","yref":"paper","yanchor":"bottom","xanchor":"center","align":"center","x":0.15666666666666665,"y":0.432,"showarrow":false},{"text":"Lag 4 (0.522)","xref":"paper","yref":"paper","yanchor":"bottom","xanchor":"center","align":"center","x":0.5,"y":0.432,"showarrow":false},{"text":"Lag 5 (0.421)","xref":"paper","yref":"paper","yanchor":"bottom","xanchor":"center","align":"center","x":0.84333333333333327,"y":0.432,"showarrow":false}],"shapes":[],"images":[],"margin":{"b":40,"l":60,"t":25,"r":10},"hovermode":"closest","showlegend":false,"title":"Cross-Correlation: TFR and Marriage"},"attrs":{"27001a2070b6":{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001,1.1200000000000001,1.04,0.96999999999999997,0.96999999999999997],"y":[9.8000000000000025,10.6,9.7000000000000011,9,9.8000000000000025,9.2000000000000011,7.7000000000000002,8.9000000000000004,9.3000000000000025,8.7000000000000011,8.5999999999999996,8.7000000000000011,8.9000000000000004,8.5999999999999996,8.2000000000000011,8.0999999999999996,7.7000000000000002,8.0999999999999996,7.0999999999999996,7.7999999999999998,6.7000000000000002,6.5,6.5999999999999996,6.2999999999999998,6.2999999999999998,6.4000000000000004,6.5,6.4000000000000004,6.5,6.5999999999999996,6.0999999999999996,6.7000000000000002,6.7000000000000002,6.2999999999999998,6.7999999999999998,6.7000000000000002,6.5999999999999996,6.5999999999999996,6.4000000000000004,5.9000000000000004,5.2000000000000002,6.5,6.7000000000000002,6.4000000000000004,5.9000000000000004],"mode":"markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"27007edf4bd7":{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001,1.1200000000000001,1.04,0.96999999999999997],"y":[10.6,9.7000000000000011,9,9.8000000000000025,9.2000000000000011,7.7000000000000002,8.9000000000000004,9.3000000000000025,8.7000000000000011,8.5999999999999996,8.7000000000000011,8.9000000000000004,8.5999999999999996,8.2000000000000011,8.0999999999999996,7.7000000000000002,8.0999999999999996,7.0999999999999996,7.7999999999999998,6.7000000000000002,6.5,6.5999999999999996,6.2999999999999998,6.2999999999999998,6.4000000000000004,6.5,6.4000000000000004,6.5,6.5999999999999996,6.0999999999999996,6.7000000000000002,6.7000000000000002,6.2999999999999998,6.7999999999999998,6.7000000000000002,6.5999999999999996,6.5999999999999996,6.4000000000000004,5.9000000000000004,5.2000000000000002,6.5,6.7000000000000002,6.4000000000000004,5.9000000000000004],"mode":"markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"2700370515e8":{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001,1.1200000000000001,1.04],"y":[9.7000000000000011,9,9.8000000000000025,9.2000000000000011,7.7000000000000002,8.9000000000000004,9.3000000000000025,8.7000000000000011,8.5999999999999996,8.7000000000000011,8.9000000000000004,8.5999999999999996,8.2000000000000011,8.0999999999999996,7.7000000000000002,8.0999999999999996,7.0999999999999996,7.7999999999999998,6.7000000000000002,6.5,6.5999999999999996,6.2999999999999998,6.2999999999999998,6.4000000000000004,6.5,6.4000000000000004,6.5,6.5999999999999996,6.0999999999999996,6.7000000000000002,6.7000000000000002,6.2999999999999998,6.7999999999999998,6.7000000000000002,6.5999999999999996,6.5999999999999996,6.4000000000000004,5.9000000000000004,5.2000000000000002,6.5,6.7000000000000002,6.4000000000000004,5.9000000000000004],"mode":"markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"270013e5162f":{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001,1.1200000000000001],"y":[9,9.8000000000000025,9.2000000000000011,7.7000000000000002,8.9000000000000004,9.3000000000000025,8.7000000000000011,8.5999999999999996,8.7000000000000011,8.9000000000000004,8.5999999999999996,8.2000000000000011,8.0999999999999996,7.7000000000000002,8.0999999999999996,7.0999999999999996,7.7999999999999998,6.7000000000000002,6.5,6.5999999999999996,6.2999999999999998,6.2999999999999998,6.4000000000000004,6.5,6.4000000000000004,6.5,6.5999999999999996,6.0999999999999996,6.7000000000000002,6.7000000000000002,6.2999999999999998,6.7999999999999998,6.7000000000000002,6.5999999999999996,6.5999999999999996,6.4000000000000004,5.9000000000000004,5.2000000000000002,6.5,6.7000000000000002,6.4000000000000004,5.9000000000000004],"mode":"markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"270075ff5031":{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001],"y":[9.8000000000000025,9.2000000000000011,7.7000000000000002,8.9000000000000004,9.3000000000000025,8.7000000000000011,8.5999999999999996,8.7000000000000011,8.9000000000000004,8.5999999999999996,8.2000000000000011,8.0999999999999996,7.7000000000000002,8.0999999999999996,7.0999999999999996,7.7999999999999998,6.7000000000000002,6.5,6.5999999999999996,6.2999999999999998,6.2999999999999998,6.4000000000000004,6.5,6.4000000000000004,6.5,6.5999999999999996,6.0999999999999996,6.7000000000000002,6.7000000000000002,6.2999999999999998,6.7999999999999998,6.7000000000000002,6.5999999999999996,6.5999999999999996,6.4000000000000004,5.9000000000000004,5.2000000000000002,6.5,6.7000000000000002,6.4000000000000004,5.9000000000000004],"mode":"markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"2700ba8164d":{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001],"y":[9.2000000000000011,7.7000000000000002,8.9000000000000004,9.3000000000000025,8.7000000000000011,8.5999999999999996,8.7000000000000011,8.9000000000000004,8.5999999999999996,8.2000000000000011,8.0999999999999996,7.7000000000000002,8.0999999999999996,7.0999999999999996,7.7999999999999998,6.7000000000000002,6.5,6.5999999999999996,6.2999999999999998,6.2999999999999998,6.4000000000000004,6.5,6.4000000000000004,6.5,6.5999999999999996,6.0999999999999996,6.7000000000000002,6.7000000000000002,6.2999999999999998,6.7999999999999998,6.7000000000000002,6.5999999999999996,6.5999999999999996,6.4000000000000004,5.9000000000000004,5.2000000000000002,6.5,6.7000000000000002,6.4000000000000004,5.9000000000000004],"mode":"markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"subplot":true,".hideLegend":true,"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 </div>
-</div>
-</div>
-</div>
-<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>win <span class="ot">&lt;-</span> <span class="dv">10</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>roll_df <span class="ot">&lt;-</span> analysis_df <span class="sc">%&gt;%</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, tfr, marriage, divorce) <span class="sc">%&gt;%</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(year)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(roll_df)</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>years_end <span class="ot">&lt;-</span> roll_df<span class="sc">$</span>year[win<span class="sc">:</span>n]</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>cor_mar <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="fu">length</span>(years_end))</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>cor_div <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="fu">length</span>(years_end))</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> win<span class="sc">:</span>n) {</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> (i <span class="sc">-</span> win <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>i</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  cor_mar[i <span class="sc">-</span> win <span class="sc">+</span> <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">cor</span>(roll_df<span class="sc">$</span>tfr[idx], roll_df<span class="sc">$</span>marriage[idx], <span class="at">use =</span> <span class="st">"complete.obs"</span>)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  cor_div[i <span class="sc">-</span> win <span class="sc">+</span> <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">cor</span>(roll_df<span class="sc">$</span>tfr[idx], roll_df<span class="sc">$</span>divorce[idx], <span class="at">use =</span> <span class="st">"complete.obs"</span>)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>roll_out <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">year =</span> years_end,</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">TFR vs Marriage</span><span class="st">`</span> <span class="ot">=</span> cor_mar,</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">TFR vs Divorce</span><span class="st">`</span> <span class="ot">=</span> cor_div,</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">TFR vs Marriage</span><span class="st">`</span>, <span class="st">`</span><span class="at">TFR vs Divorce</span><span class="st">`</span>),</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"series"</span>,</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"correlation"</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(roll_out, <span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> correlation, <span class="at">colour =</span> series)) <span class="sc">+</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"Rolling Correlation with TFR (Window ="</span>, win, <span class="st">"years)"</span>),</span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Year"</span>,</span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="cn">NULL</span></span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>)</span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Cross-correlation values between TFR and marriage across lags</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">lag</th>
+<th style="text-align: right;">correlation</th>
+<th style="text-align: left;">pair</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">-5</td>
+<td style="text-align: right;">0.421</td>
+<td style="text-align: left;">TFR vs Marriage</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-4</td>
+<td style="text-align: right;">0.522</td>
+<td style="text-align: left;">TFR vs Marriage</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">-3</td>
+<td style="text-align: right;">0.596</td>
+<td style="text-align: left;">TFR vs Marriage</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">0.671</td>
+<td style="text-align: left;">TFR vs Marriage</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.769</td>
+<td style="text-align: left;">TFR vs Marriage</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.878</td>
+<td style="text-align: left;">TFR vs Marriage</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.812</td>
+<td style="text-align: left;">TFR vs Marriage</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.742</td>
+<td style="text-align: left;">TFR vs Marriage</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.772</td>
+<td style="text-align: left;">TFR vs Marriage</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0.751</td>
+<td style="text-align: left;">TFR vs Marriage</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.686</td>
+<td style="text-align: left;">TFR vs Marriage</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <p><strong>Observation:</strong><br>
-The rolling correlations show that the association between TFR and marriage remains mostly positive across time, suggesting a relatively stable positive relationship over the long run. In contrast, the correlation between TFR and divorce varies substantially across periods, becoming strongly negative in some windows and positive in others. This indicates that marriage is a more consistent associated indicator of fertility in the dataset, while the relationship with divorce is less stable over time.</p>
+The cross-correlation between TFR and marriage is positive across all tested lags, indicating that the two series generally move in the same direction. The strongest value appears at lag 0 (0.878), suggesting that the clearest co-movement occurs in the same year rather than after a time shift. The correlations remain relatively high at nearby lags, such as lag -1 (0.769), lag 1 (0.812), and lag 2 (0.742), but they gradually weaken as the lag moves further away from zero. This suggests that the alignment between marriage and fertility is strongest in the near term with same-year timing appearing most prominent. Based on this pattern, lag 0 and nearby short lags may be the most relevant candidates for further testing in the regression analysis.</p>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>lag_max <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>tfr_ts <span class="ot">&lt;-</span> <span class="fu">ts</span>(ccf_df<span class="sc">$</span>tfr, <span class="at">start =</span> <span class="fu">min</span>(ccf_df<span class="sc">$</span>year), <span class="at">frequency =</span> <span class="dv">1</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>marriage_ts <span class="ot">&lt;-</span> <span class="fu">ts</span>(ccf_df<span class="sc">$</span>marriage, <span class="at">start =</span> <span class="fu">min</span>(ccf_df<span class="sc">$</span>year), <span class="at">frequency =</span> <span class="dv">1</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>divorce_ts <span class="ot">&lt;-</span> <span class="fu">ts</span>(ccf_df<span class="sc">$</span>divorce, <span class="at">start =</span> <span class="fu">min</span>(ccf_df<span class="sc">$</span>year), <span class="at">frequency =</span> <span class="dv">1</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>TSstudio<span class="sc">::</span><span class="fu">ccf_plot</span>(</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> tfr_ts,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> marriage_ts,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">lags =</span> <span class="dv">0</span><span class="sc">:</span>lag_max,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">"Cross-Correlation: TFR and Marriage"</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>ccf_marriage_tbl <span class="ot">&lt;-</span> <span class="fu">extract_ccf_tbl</span>(</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> ccf_df<span class="sc">$</span>tfr,</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> ccf_df<span class="sc">$</span>marriage,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">x_name =</span> <span class="st">"TFR"</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_name =</span> <span class="st">"Marriage"</span>,</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">lag_max =</span> lag_max</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  ccf_marriage_tbl,</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Cross-correlation values between TFR and marriage across lags"</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </div>
 </div>
 <hr>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>1.3 Hierarchical Clustering of Years by TFR, Marriage and Divorce
-</div>
-</div>
-<div class="callout-body-container callout-body">
+</section>
+<section id="cross-correlation-between-tfr-and-divorce" class="level2">
+<h2 class="anchored" data-anchor-id="cross-correlation-between-tfr-and-divorce">1.3 Cross-Correlation Between TFR and Divorce</h2>
+<p>This section applies the same lag-based comparison to divorce. It helps answer a similar question:</p>
+<p>“Does divorce move most closely with fertility in the same year, or does the clearest timing pattern appear earlier or later?”</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true" href="">Visual</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false" href="">Code</a></li></ul>
 <div class="tab-content">
 <div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
 <div class="cell">
 <div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-7e298e42e5bb0d8d173f" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-7e298e42e5bb0d8d173f">{"x":{"data":[{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001,1.1200000000000001,1.04,0.96999999999999997,0.96999999999999997],"y":[0.80000000000000004,0.90000000000000002,0.90000000000000002,1,0.90000000000000002,0.90000000000000002,1,1.1000000000000001,1.1000000000000001,1.1000000000000001,1.3,1.6000000000000001,1.3999999999999999,1.3999999999999999,1.3,1.3999999999999999,1.5,1.6000000000000001,1.8,1.6000000000000001,1.6000000000000001,1.5,1.7,1.8999999999999999,1.8,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8,1.8999999999999999,1.7,1.8999999999999999,1.7,1.7,1.7],"mode":"markers","type":"scatter","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001,1.1200000000000001,1.04,0.96999999999999997],"y":[0.90000000000000002,0.90000000000000002,1,0.90000000000000002,0.90000000000000002,1,1.1000000000000001,1.1000000000000001,1.1000000000000001,1.3,1.6000000000000001,1.3999999999999999,1.3999999999999999,1.3,1.3999999999999999,1.5,1.6000000000000001,1.8,1.6000000000000001,1.6000000000000001,1.5,1.7,1.8999999999999999,1.8,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8,1.8999999999999999,1.7,1.8999999999999999,1.7,1.7,1.7],"mode":"markers","type":"scatter","marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"line":{"color":"rgba(255,127,14,1)"},"xaxis":"x2","yaxis":"y","frame":null},{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001,1.1200000000000001,1.04],"y":[0.90000000000000002,1,0.90000000000000002,0.90000000000000002,1,1.1000000000000001,1.1000000000000001,1.1000000000000001,1.3,1.6000000000000001,1.3999999999999999,1.3999999999999999,1.3,1.3999999999999999,1.5,1.6000000000000001,1.8,1.6000000000000001,1.6000000000000001,1.5,1.7,1.8999999999999999,1.8,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8,1.8999999999999999,1.7,1.8999999999999999,1.7,1.7,1.7],"mode":"markers","type":"scatter","marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"line":{"color":"rgba(44,160,44,1)"},"xaxis":"x3","yaxis":"y","frame":null},{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001,1.1200000000000001],"y":[1,0.90000000000000002,0.90000000000000002,1,1.1000000000000001,1.1000000000000001,1.1000000000000001,1.3,1.6000000000000001,1.3999999999999999,1.3999999999999999,1.3,1.3999999999999999,1.5,1.6000000000000001,1.8,1.6000000000000001,1.6000000000000001,1.5,1.7,1.8999999999999999,1.8,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8,1.8999999999999999,1.7,1.8999999999999999,1.7,1.7,1.7],"mode":"markers","type":"scatter","marker":{"color":"rgba(214,39,40,1)","line":{"color":"rgba(214,39,40,1)"}},"error_y":{"color":"rgba(214,39,40,1)"},"error_x":{"color":"rgba(214,39,40,1)"},"line":{"color":"rgba(214,39,40,1)"},"xaxis":"x","yaxis":"y2","frame":null},{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001],"y":[0.90000000000000002,0.90000000000000002,1,1.1000000000000001,1.1000000000000001,1.1000000000000001,1.3,1.6000000000000001,1.3999999999999999,1.3999999999999999,1.3,1.3999999999999999,1.5,1.6000000000000001,1.8,1.6000000000000001,1.6000000000000001,1.5,1.7,1.8999999999999999,1.8,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8,1.8999999999999999,1.7,1.8999999999999999,1.7,1.7,1.7],"mode":"markers","type":"scatter","marker":{"color":"rgba(148,103,189,1)","line":{"color":"rgba(148,103,189,1)"}},"error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"line":{"color":"rgba(148,103,189,1)"},"xaxis":"x2","yaxis":"y2","frame":null},{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001],"y":[0.90000000000000002,1,1.1000000000000001,1.1000000000000001,1.1000000000000001,1.3,1.6000000000000001,1.3999999999999999,1.3999999999999999,1.3,1.3999999999999999,1.5,1.6000000000000001,1.8,1.6000000000000001,1.6000000000000001,1.5,1.7,1.8999999999999999,1.8,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8,1.8999999999999999,1.7,1.8999999999999999,1.7,1.7,1.7],"mode":"markers","type":"scatter","marker":{"color":"rgba(140,86,75,1)","line":{"color":"rgba(140,86,75,1)"}},"error_y":{"color":"rgba(140,86,75,1)"},"error_x":{"color":"rgba(140,86,75,1)"},"line":{"color":"rgba(140,86,75,1)"},"xaxis":"x3","yaxis":"y2","frame":null}],"layout":{"xaxis":{"domain":[0,0.3133333333333333],"automargin":true,"title":"","range":[0.96757500000000007,2.0579999999999998],"anchor":"y2"},"xaxis2":{"domain":[0.35333333333333333,0.64666666666666661],"automargin":true,"title":"","range":[0.96757500000000007,2.0579999999999998],"anchor":"y2"},"xaxis3":{"domain":[0.68666666666666665,1],"automargin":true,"title":"","range":[0.96757500000000007,2.0579999999999998],"anchor":"y2"},"yaxis2":{"domain":[0,0.47999999999999998],"automargin":true,"range":[0.79800000000000004,2.1000000000000001],"title":[],"anchor":"x"},"yaxis":{"domain":[0.52000000000000002,1],"automargin":true,"range":[0.79800000000000004,2.1000000000000001],"title":[],"anchor":"x"},"annotations":[{"text":"Lag 0 (-0.771)","xref":"paper","yref":"paper","yanchor":"bottom","xanchor":"center","align":"center","x":0.15666666666666665,"y":0.95199999999999996,"showarrow":false},{"text":"Lag 1 (-0.692)","xref":"paper","yref":"paper","yanchor":"bottom","xanchor":"center","align":"center","x":0.5,"y":0.95199999999999996,"showarrow":false},{"text":"Lag 2 (-0.605)","xref":"paper","yref":"paper","yanchor":"bottom","xanchor":"center","align":"center","x":0.84333333333333327,"y":0.95199999999999996,"showarrow":false},{"text":"Lag 3 (-0.517)","xref":"paper","yref":"paper","yanchor":"bottom","xanchor":"center","align":"center","x":0.15666666666666665,"y":0.432,"showarrow":false},{"text":"Lag 4 (-0.495)","xref":"paper","yref":"paper","yanchor":"bottom","xanchor":"center","align":"center","x":0.5,"y":0.432,"showarrow":false},{"text":"Lag 5 (-0.43)","xref":"paper","yref":"paper","yanchor":"bottom","xanchor":"center","align":"center","x":0.84333333333333327,"y":0.432,"showarrow":false}],"shapes":[],"images":[],"margin":{"b":40,"l":60,"t":25,"r":10},"hovermode":"closest","showlegend":false,"title":"Cross-Correlation: TFR and Divorce"},"attrs":{"270013b6eb8":{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001,1.1200000000000001,1.04,0.96999999999999997,0.96999999999999997],"y":[0.80000000000000004,0.90000000000000002,0.90000000000000002,1,0.90000000000000002,0.90000000000000002,1,1.1000000000000001,1.1000000000000001,1.1000000000000001,1.3,1.6000000000000001,1.3999999999999999,1.3999999999999999,1.3,1.3999999999999999,1.5,1.6000000000000001,1.8,1.6000000000000001,1.6000000000000001,1.5,1.7,1.8999999999999999,1.8,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8,1.8999999999999999,1.7,1.8999999999999999,1.7,1.7,1.7],"mode":"markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"27005d917a95":{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001,1.1200000000000001,1.04,0.96999999999999997],"y":[0.90000000000000002,0.90000000000000002,1,0.90000000000000002,0.90000000000000002,1,1.1000000000000001,1.1000000000000001,1.1000000000000001,1.3,1.6000000000000001,1.3999999999999999,1.3999999999999999,1.3,1.3999999999999999,1.5,1.6000000000000001,1.8,1.6000000000000001,1.6000000000000001,1.5,1.7,1.8999999999999999,1.8,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8,1.8999999999999999,1.7,1.8999999999999999,1.7,1.7,1.7],"mode":"markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"27006b4f5481":{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001,1.1200000000000001,1.04],"y":[0.90000000000000002,1,0.90000000000000002,0.90000000000000002,1,1.1000000000000001,1.1000000000000001,1.1000000000000001,1.3,1.6000000000000001,1.3999999999999999,1.3999999999999999,1.3,1.3999999999999999,1.5,1.6000000000000001,1.8,1.6000000000000001,1.6000000000000001,1.5,1.7,1.8999999999999999,1.8,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8,1.8999999999999999,1.7,1.8999999999999999,1.7,1.7,1.7],"mode":"markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"27006eb846dd":{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001,1.1200000000000001],"y":[1,0.90000000000000002,0.90000000000000002,1,1.1000000000000001,1.1000000000000001,1.1000000000000001,1.3,1.6000000000000001,1.3999999999999999,1.3999999999999999,1.3,1.3999999999999999,1.5,1.6000000000000001,1.8,1.6000000000000001,1.6000000000000001,1.5,1.7,1.8999999999999999,1.8,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8,1.8999999999999999,1.7,1.8999999999999999,1.7,1.7,1.7],"mode":"markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"2700117f221d":{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001,1.1000000000000001],"y":[0.90000000000000002,0.90000000000000002,1,1.1000000000000001,1.1000000000000001,1.1000000000000001,1.3,1.6000000000000001,1.3999999999999999,1.3999999999999999,1.3,1.3999999999999999,1.5,1.6000000000000001,1.8,1.6000000000000001,1.6000000000000001,1.5,1.7,1.8999999999999999,1.8,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8,1.8999999999999999,1.7,1.8999999999999999,1.7,1.7,1.7],"mode":"markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"270021a7460d":{"x":[1.8200000000000001,1.78,1.74,1.6100000000000001,1.6200000000000001,1.6100000000000001,1.4299999999999999,1.6200000000000001,1.96,1.75,1.8300000000000001,1.73,1.72,1.74,1.71,1.6700000000000002,1.6600000000000001,1.6100000000000001,1.48,1.47,1.6000000000000001,1.4099999999999999,1.3700000000000001,1.27,1.26,1.26,1.28,1.29,1.28,1.22,1.1500000000000001,1.2,1.29,1.1900000000000002,1.25,1.24,1.2,1.1600000000000001,1.1400000000000001,1.1400000000000001],"y":[0.90000000000000002,1,1.1000000000000001,1.1000000000000001,1.1000000000000001,1.3,1.6000000000000001,1.3999999999999999,1.3999999999999999,1.3,1.3999999999999999,1.5,1.6000000000000001,1.8,1.6000000000000001,1.6000000000000001,1.5,1.7,1.8999999999999999,1.8,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,2,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8999999999999999,1.8,1.8999999999999999,1.7,1.8999999999999999,1.7,1.7,1.7],"mode":"markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"subplot":true,".hideLegend":true,"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Cross-correlation values between TFR and divorce across lags</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">lag</th>
+<th style="text-align: right;">correlation</th>
+<th style="text-align: left;">pair</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">-5</td>
+<td style="text-align: right;">-0.430</td>
+<td style="text-align: left;">TFR vs Divorce</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-4</td>
+<td style="text-align: right;">-0.495</td>
+<td style="text-align: left;">TFR vs Divorce</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">-3</td>
+<td style="text-align: right;">-0.517</td>
+<td style="text-align: left;">TFR vs Divorce</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">-0.605</td>
+<td style="text-align: left;">TFR vs Divorce</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-0.692</td>
+<td style="text-align: left;">TFR vs Divorce</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.771</td>
+<td style="text-align: left;">TFR vs Divorce</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-0.757</td>
+<td style="text-align: left;">TFR vs Divorce</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">-0.745</td>
+<td style="text-align: left;">TFR vs Divorce</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">-0.757</td>
+<td style="text-align: left;">TFR vs Divorce</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">-0.755</td>
+<td style="text-align: left;">TFR vs Divorce</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">-0.769</td>
+<td style="text-align: left;">TFR vs Divorce</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>Observation:</strong><br>
+The cross-correlation between TFR and divorce is negative across all tested lags, showing that the two series tend to move in opposite directions throughout the lag window. The largest absolute value occurs at lag 0 (-0.771), which suggests that the strongest co-movement appears in the same year rather than at a shifted lag. The correlation remains relatively strong for nearby positive lags, including lag 1 (-0.757) and lag 5 (-0.769), but is weaker for more distant negative lags. Compared with the marriage results, the divorce pattern is weaker in directionally positive co-movement and instead shows a stable inverse pattern with fertility. This indicates that divorce does not follow the same timing structure as marriage in relation to TFR.</p>
+</div>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>TSstudio<span class="sc">::</span><span class="fu">ccf_plot</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> tfr_ts,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> divorce_ts,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">lags =</span> <span class="dv">0</span><span class="sc">:</span>lag_max,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">"Cross-Correlation: TFR and Divorce"</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>ccf_divorce_tbl <span class="ot">&lt;-</span> <span class="fu">extract_ccf_tbl</span>(</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> ccf_df<span class="sc">$</span>tfr,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> ccf_df<span class="sc">$</span>divorce,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">x_name =</span> <span class="st">"TFR"</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_name =</span> <span class="st">"Divorce"</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">lag_max =</span> lag_max</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  ccf_divorce_tbl,</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Cross-correlation values between TFR and divorce across lags"</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="combined-view-of-section-1.2-and-1.3" class="level2">
+<h2 class="anchored" data-anchor-id="combined-view-of-section-1.2-and-1.3">1.4 Combined view of Section 1.2 and 1.3</h2>
+<p>This section combines the results from Sections 1.2 and 1.3 into a single comparison view. By placing the peak cross-correlation and lag patterns for marriage and divorce side by side, it becomes easier to compare how the two indicators align with fertility across the same lag window.</p>
+<p>This type of summary view is also useful for the planned Shiny application, where users may want to compare multiple indicators interactively in one panel.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true" href="">Visual</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false" href="">Code</a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Peak cross-correlation and corresponding lag by indicator</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Pair</th>
+<th style="text-align: right;">Peak Lag (Years)</th>
+<th style="text-align: right;">Peak Correlation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">TFR vs Marriage</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.878</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">TFR vs Divorce</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.771</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="correlation-analysis_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="correlation-analysis_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-</div>
-<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># prepare data for clustering</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>cluster_df <span class="ot">&lt;-</span> analysis_df <span class="sc">%&gt;%</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, tfr, marriage, divorce) <span class="sc">%&gt;%</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(year)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># standardise variables</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>cluster_mat <span class="ot">&lt;-</span> cluster_df <span class="sc">%&gt;%</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(tfr, marriage, divorce) <span class="sc">%&gt;%</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale</span>()</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># hierarchical clustering</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">dist</span>(cluster_mat, <span class="at">method =</span> <span class="st">"euclidean"</span>)</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>hc <span class="ot">&lt;-</span> <span class="fu">hclust</span>(d, <span class="at">method =</span> <span class="st">"ward.D2"</span>)</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># dendrogram</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hc, <span class="at">main =</span> <span class="st">"Hierarchical Clustering Dendrogram of Years"</span>)</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="fu">rect.hclust</span>(hc, <span class="at">k =</span> <span class="dv">3</span>, <span class="at">border =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
 <p><strong>Observation:</strong><br>
-Hierarchical clustering groups years according to similar combinations of TFR, marriage and divorce. The dendrogram indicates that the years can be divided into three broad clusters, suggesting that Singapore’s demographic patterns evolved across a few distinct phases over time.</p>
+This summary combines the marriage and divorce results into a single comparison view, making it easier to compare their lag structures directly. Both indicators reach their peak cross-correlation with TFR at lag 0, which suggests that the clearest co-movement for both appears in the same year rather than after a longer time shift. However, the direction differs across the two indicators. Marriage shows a positive peak correlation of 0.878, indicating that higher marriage values tend to align with higher fertility, while divorce shows a negative peak correlation of -0.771, indicating that higher divorce values tend to align with lower fertility.</p>
+<p>Across the lag window, the marriage series remains consistently positive and the divorce series remains consistently negative, showing that the two indicators have opposite directional patterns in relation to fertility. This combined chart and table are useful because they provide a concise side-by-side view of both timing patterns and help prepare for the next stage of analysis in the regression section.</p>
+</div>
+<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>peak_ccf_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_peak_ccf</span>(ccf_marriage_tbl, <span class="st">"TFR vs Marriage"</span>),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_peak_ccf</span>(ccf_divorce_tbl, <span class="st">"TFR vs Divorce"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  peak_ccf_tbl,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Peak cross-correlation and corresponding lag by indicator"</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>peak_plot_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  ccf_marriage_tbl <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">series =</span> <span class="st">"TFR vs Marriage"</span>),</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  ccf_divorce_tbl <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">series =</span> <span class="st">"TFR vs Divorce"</span>)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(peak_plot_df, <span class="fu">aes</span>(<span class="at">x =</span> lag, <span class="at">y =</span> correlation, <span class="at">colour =</span> series)) <span class="sc">+</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Cross-Correlation Comparison Across Lags"</span>,</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Lag (Years)"</span>,</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Cross-Correlation"</span>,</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="cn">NULL</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"top"</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </div>
 </div>
 <hr>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>Overall, the results show that the clearest pattern for both marriage and divorce occurs at lag 0, meaning the strongest alignment with fertility appears in the same year. Marriage displays a positive pattern with fertility, while divorce shows a negative pattern.</p>
+<p>This section therefore provides an exploratory summary of the lag structure in the data and serves as a useful bridge to the panel regression section, where these relationships are examined more formally.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

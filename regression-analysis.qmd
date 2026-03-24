@@ -1,5 +1,5 @@
 ---
-title: "Regression Analysis: Singapore Fertility Trends: A Visual Analytics Study"
+title: "Panel Regression Analysis: Singapore Fertility Trends: A Visual Analytics Study"
 author: "G1 T16 - Cheok En Qi and Teong Sze Ching"
 date: "March 6, 2026"
 date-modified: "last-modified"
@@ -10,10 +10,23 @@ execute:
   freeze: true
 ---
 
-## load dataset
+## Load dataset 
 
 ```{r}
-pacman::p_load(tidyverse, corrplot, knitr, patchwork)
+pacman::p_load(tidyverse, knitr, patchwork, plm, lmtest, sandwich)
+
+coef_table <- function(model) {
+  ct <- coeftest(model, vcov = vcovHC(model, type = "HC1"))
+  data.frame(
+    term = rownames(ct),
+    estimate = unname(ct[, 1]),
+    std_error = unname(ct[, 2]),
+    statistic = unname(ct[, 3]),
+    p_value = unname(ct[, 4]),
+    row.names = NULL,
+    check.names = FALSE
+  )
+}
 
 analysis_df <- readRDS("data/analysis_df.rds")
 tfr_df <- readRDS("data/tfr_df.rds")
@@ -21,290 +34,343 @@ asfr_df <- readRDS("data/asfr_df.rds")
 series_key <- readRDS("data/series_key.rds")
 ```
 
-# Regression Analysis
+# Panel Regression Analysis
 
-This section presents on regression-based analysis to examine whether marriage and divorce indicators can statistically explain fertility trends.
+Because the data contain repeated observations across age groups and years, panel regression is more suitable than a simple regression model.
 
-The regression component is designed to support the planned Shiny application, where users will be able to interactively vary the lag structure of the predictors. As such, the analysis focuses on a baseline current-year model and lagged models that can later be integrated directly into the interactive dashboard. Because these variables change together over time, the regression results should be interpreted as statistical relationships or associations rather than proof of cause and effect.
+The cross-correlation analysis was first used to explore possible lead-lag patterns across a 5-year window. Since the strongest co-movement for both marriage and divorce was observed at lag 0, the panel regression section focuses on the same-year specification as the main formal model. This allows the analysis to estimate the direction, coefficient size, and statistical significance of the relationships more explicitly within a panel-data framework. 
 
-:::: callout-note
-## 1.1 Baseline Regression Models — Marriage vs Divorce vs Both {.tabset}
+Unlike the cross-correlation section, which uses the overall yearly series to examine the aggregate timing pattern, the panel regression here uses age-group-by-year observations with ASFR as the dependent variable. This makes age group an important part of the model structure, because fertility levels differ substantially across age groups and should not be treated as one pooled series.
 
-These baseline models examine whether fertility is associated with marriage and divorce in the current period. For example, does fertility in year t move with marriage and divorce in year t?
+## 1.1 Organising the EDA output for Panel Regression
 
-M1 tests whether marriage alone explains fertility, M2 tests whether divorce alone explains fertility, and M3 examines what happens when both marriage and divorce are included together. Because marriage and divorce data are only available up to 2024, the regressions are estimated using the overlapping non-missing years.
+The dataset prepared in the EDA section is already structurally suitable for panel regression. The regression section does not create a completely new dataset. Specifically, it combines the age-specific fertility dataset (asfr_df) with the yearly marriage and divorce indicators from analysis_df to form the panel dataset used for modelling. 
 
 ::: panel-tabset
 ## Visual
 
 ```{r, echo=FALSE}
-m1 <- lm(tfr ~ marriage, data = analysis_df)
-m2 <- lm(tfr ~ divorce,  data = analysis_df)
-m3 <- lm(tfr ~ marriage + divorce, data = analysis_df)
+panel_df <- asfr_df %>%
+  transmute(
+    year,
+    age_group = as.character(age_band),
+    asfr = value
+  ) %>%
+  left_join(analysis_df %>% select(year, marriage, divorce), by = "year") %>%
+  drop_na(age_group, year, asfr, marriage, divorce) %>%
+  arrange(age_group, year)
 
-fmt_p <- function(x) {
-  ifelse(
-    is.na(x), NA,
-    ifelse(x < 0.001, "<0.001", sprintf("%.3f", x))
-  )
-}
-
-baseline_tbl <- tibble(
-  model = c("M1: TFR ~ Marriage",
-            "M2: TFR ~ Divorce",
-            "M3: TFR ~ Marriage + Divorce"),
-  n = c(nobs(m1), nobs(m2), nobs(m3)),
-  r_squared = c(summary(m1)$r.squared,
-                summary(m2)$r.squared,
-                summary(m3)$r.squared),
-  marriage_coef = c(coef(m1)["marriage"], NA, coef(m3)["marriage"]),
-  divorce_coef  = c(NA, coef(m2)["divorce"], coef(m3)["divorce"]),
-  marriage_p = fmt_p(c(coef(summary(m1))["marriage","Pr(>|t|)"],
-                       NA,
-                       coef(summary(m3))["marriage","Pr(>|t|)"])),
-  divorce_p  = fmt_p(c(NA,
-                       coef(summary(m2))["divorce","Pr(>|t|)"],
-                       coef(summary(m3))["divorce","Pr(>|t|)"]))
-)
+panel_preview <- panel_df %>%
+  slice_head(n = 10)
 
 knitr::kable(
-  baseline_tbl,
+  panel_preview,
   digits = 3,
-  caption = "Baseline regression model comparison"
+  caption = "Sample of the age-group-by-year panel dataset"
 )
-
-ggplot(baseline_tbl, aes(x = model, y = r_squared)) +
-  geom_col() +
-  geom_text(aes(label = round(r_squared, 3)), vjust = -0.3, size = 3) +
-  labs(
-    title = "R2 Comparison Across Baseline Regression Models",
-    x = "Model",
-    y = "R2"
-  ) +
-  ylim(0, max(baseline_tbl$r_squared) + 0.1)
 ```
 
 **Observation:**\
-The baseline regression comparison shows that both marriage and divorce are individually associated with fertility when entered separately. The marriage-only model explains more variation in fertility (R2=0.771) than the divorce-only model (R2=0.595). When both variables are included together, the model fit does not improve beyond the marriage-only model (R2=0.771) and divorce is no longer statistically significant (p=0.878). This suggests that the two indicators may be capturing overlapping long-run demographic patterns, with marriage appearing to be the stronger predictor in the combined specification.
+The dataset is arranged in panel form, where each row represents one age group in one year. asfr is the age-specific fertility rate, measured as live births per 1,000 women in that age group. marriage is the crude marriage rate per 1,000 residents, and divorce is the crude divorce rate per 1,000 residents.
 
-The coefficient signs are also directionally consistent with the visual trends: marriage has a positive association with fertility, while divorce has a negative association when each is modelled separately.
-
-Note: Although the regression uses 45 overlapping annual observations, the EDA charts do not suggest major isolated outlier years. The series mainly exhibit long-run trends with moderate fluctuations, making the sample acceptable for simple exploratory regression models.
+Because age group identifies who is being observed and year identifies when the observation takes place, this dataset is organised in a suitable format for panel regression. This is also where the regression section differs from the cross-correlation section: instead of using one overall fertility series, the regression uses repeated fertility observations across age groups over time.
 
 ## Code
 
 ``` r
-m1 <- lm(tfr ~ marriage, data = analysis_df)
-m2 <- lm(tfr ~ divorce,  data = analysis_df)
-m3 <- lm(tfr ~ marriage + divorce, data = analysis_df)
+panel_df <- asfr_df %>%
+  transmute(
+    year,
+    age_group = as.character(age_band),
+    asfr = value
+  ) %>%
+  left_join(analysis_df %>% select(year, marriage, divorce), by = "year") %>%
+  drop_na(age_group, year, asfr, marriage, divorce) %>%
+  arrange(age_group, year)
 
-baseline_tbl <- tibble(
-  model = c("M1: TFR ~ Marriage",
-            "M2: TFR ~ Divorce",
-            "M3: TFR ~ Marriage + Divorce"),
-  n = c(nobs(m1), nobs(m2), nobs(m3)),
-  r_squared = c(summary(m1)$r.squared,
-                summary(m2)$r.squared,
-                summary(m3)$r.squared),
-  marriage_coef = c(coef(m1)["marriage"], NA, coef(m3)["marriage"]),
-  divorce_coef  = c(NA, coef(m2)["divorce"], coef(m3)["divorce"]),
-  marriage_p = c(coef(summary(m1))["marriage","Pr(>|t|)"],
-                 NA,
-                 coef(summary(m3))["marriage","Pr(>|t|)"]),
-  divorce_p  = c(NA,
-                 coef(summary(m2))["divorce","Pr(>|t|)"],
-                 coef(summary(m3))["divorce","Pr(>|t|)"])
-)
+panel_preview <- panel_df %>%
+  slice_head(n = 10)
 
 knitr::kable(
-  baseline_tbl,
+  panel_preview,
   digits = 3,
-  caption = "Baseline regression model comparison"
+  caption = "Preview of the age-group-by-year panel dataset"
 )
-
-ggplot(baseline_tbl, aes(x = model, y = r_squared)) +
-  geom_col() +
-  geom_text(aes(label = round(r_squared, 3)), vjust = -0.3, size = 3) +
-  labs(
-    title = "R2 Comparison Across Baseline Regression Models",
-    x = "Model",
-    y = "R2"
-  ) +
-  ylim(0, max(baseline_tbl$r_squared) + 0.1)
 ```
 :::
-::::
 
-:::: callout-note
-## 1.2 Lagged Regression Models — Testing Delayed Effects {.tabset}
+------------------------------------------------------------------------
 
-These models test for delayed effects. Instead of examining whether fertility is associated with marriage and divorce in the same year, is current fertility more strongly related to marriage or divorce in earlier years, such as one or two years before. This is useful because marriage and childbirth do not always happen immediately one after another. A couple may marry in one year and only have children one or two years later. The lagged models therefore help to check whether earlier marriage or divorce patterns explain current fertility better than the current-year model.
+## 1.2 Exploratory Panel Visualisation
 
-L1 tests whether fertility this year is associated with the marriage rate from two years earlier, L2 tests whether fertility this year is associated with the divorce rate from one year earlier, and L3 examines what happens when both lagged predictors are included together.
+Before performing regression, it is useful to visualise the panel data. This step helps answer a basic question before modelling: Do the age groups actually look different from one another? If they do, panel methods make more sense because the analysis needs to account for those differences.
 
 ::: panel-tabset
 ## Visual
 
 ```{r, echo=FALSE}
-lag_m <- 2
-lag_d <- 1
+ggplot(panel_df, aes(x = year, y = asfr, colour = age_group)) +
+  geom_line(linewidth = 0.9) +
+  labs(
+    title = "Age-Specific Fertility Rates by Age Group",
+    x = "Year",
+    y = "ASFR (births per 1,000 women)",
+    colour = "Age group"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+```
 
-analysis_lag <- analysis_df %>%
-  mutate(
-    marriage_lag = lag(marriage, lag_m),
-    divorce_lag  = lag(divorce, lag_d)
-  ) %>%
-  drop_na(marriage_lag, divorce_lag, tfr)
+**Observation:**\
+The chart shows that fertility is not the same across age groups. Younger and older groups have much lower ASFR, while the middle age groups, especially 25-29 and 30-34, have much higher fertility levels. The chart also shows that the lines move differently over time. For example, some younger age groups generally decline, while older age groups such as 35-39 become more important later on. This tells us that fertility behaviour differs across age groups, so a model that recognises those group differences is more appropriate than treating all observations as one pooled series.
 
-m_lag_mar <- lm(tfr ~ marriage_lag, data = analysis_lag)
-m_lag_div <- lm(tfr ~ divorce_lag,  data = analysis_lag)
-m_lag_both <- lm(tfr ~ marriage_lag + divorce_lag, data = analysis_lag)
+## Code
 
-fmt_p <- function(x) {
-  ifelse(
-    is.na(x), NA,
-    ifelse(x < 0.001, "<0.001", sprintf("%.3f", x))
-  )
-}
+``` r
+ggplot(panel_df, aes(x = year, y = asfr, colour = age_group)) +
+  geom_line(linewidth = 0.9) +
+  labs(
+    title = "Age-Specific Fertility Rates by Age Group",
+    x = "Year",
+    y = "ASFR (births per 1,000 women)",
+    colour = "Age group"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+```
+:::
 
-lag_tbl <- tibble(
-  model = c("L1: TFR ~ Marriage(t-2)",
-            "L2: TFR ~ Divorce(t-1)",
-            "L3: TFR ~ Marriage(t-2) + Divorce(t-1)"),
-  n = c(nobs(m_lag_mar), nobs(m_lag_div), nobs(m_lag_both)),
-  r_squared = c(summary(m_lag_mar)$r.squared,
-                summary(m_lag_div)$r.squared,
-                summary(m_lag_both)$r.squared),
-  marriage_lag_coef = c(coef(m_lag_mar)["marriage_lag"], NA, coef(m_lag_both)["marriage_lag"]),
-  divorce_lag_coef  = c(NA, coef(m_lag_div)["divorce_lag"], coef(m_lag_both)["divorce_lag"]),
-  marriage_lag_p = fmt_p(c(coef(summary(m_lag_mar))["marriage_lag","Pr(>|t|)"],
-                           NA,
-                           coef(summary(m_lag_both))["marriage_lag","Pr(>|t|)"])),
-  divorce_lag_p  = fmt_p(c(NA,
-                           coef(summary(m_lag_div))["divorce_lag","Pr(>|t|)"],
-                           coef(summary(m_lag_both))["divorce_lag","Pr(>|t|)"]))
+------------------------------------------------------------------------
+
+## 1.3 Fixed-Effects Panel Regression Model
+
+This model is performed because it helps answer the following question:
+
+“Within the same age group, when marriage or divorce changes over time, does fertility also tend to change?”
+
+Some age groups naturally have higher fertility than others. The fixed-effects model accounts for these stable age-group differences by focusing on how fertility changes within the same age group across years.
+
+::: panel-tabset
+## Visual
+
+```{r, echo=FALSE}
+panel_pdata <- pdata.frame(panel_df, index = c("age_group", "year"))
+
+fe_model <- plm(
+  asfr ~ marriage + divorce,
+  data = panel_pdata,
+  model = "within"
+)
+
+fe_tbl <- coef_table(fe_model)
+
+knitr::kable(
+  fe_tbl,
+  digits = 3,
+  caption = "Fixed-effects panel regression with robust standard errors"
+)
+```
+
+**Observation:**\
+The fixed-effects model estimates a positive coefficient for marriage of 5.187. This suggests that, within the same age group over time, a 1-point increase in the crude marriage rate per 1,000 residents is associated with an increase of about 5.187 births per 1,000 women in ASFR, holding divorce constant. However, the p-value is 0.050, which places the result at the margin of the conventional 5% significance threshold. This should therefore be interpreted as borderline rather than strong statistical evidence.
+
+In contrast, the divorce coefficient is 0.440, indicating only a very weak relationship with fertility in this model. The evidence for divorce is not statistically strong.
+
+Overall, the fixed-effects model suggests that marriage may have a modest positive association with fertility, while divorce does not show clear evidence of a meaningful association.
+
+Note: Although the fixed-effects model compares changes within each age group over time, it still estimates one overall coefficient for each explanatory variable. This means each age group contributes to the estimation, but the final regression table reports the combined relationship for the full panel.
+
+## Code
+
+``` r
+panel_pdata <- pdata.frame(panel_df, index = c("age_group", "year"))
+
+fe_model <- plm(
+  asfr ~ marriage + divorce,
+  data = panel_pdata,
+  model = "within"
+)
+
+fe_tbl <- coef_table(fe_model)
+
+knitr::kable(
+  fe_tbl,
+  digits = 3,
+  caption = "Fixed-effects panel regression with robust standard errors"
+)
+```
+:::
+
+------------------------------------------------------------------------
+
+## 1.4 Random-Effects Panel Regression and Hausman Comparison
+
+The random-effects model is included mainly as a supporting comparison to the fixed-effects model. Since the fixed-effects model focuses on changes within the same age group over time, the random-effects model uses both changes within age groups over time and differences across age groups. We care about differences between age groups because fertility is naturally higher in some age groups than others, as shown in Section 1.2.
+
+After performing the random-effects model, a Hausman test is used to compare the fixed-effects and random-effects results and check whether the overall conclusion changes meaningfully.
+
+::: panel-tabset
+## Visual
+
+```{r, echo=FALSE}
+re_model <- plm(
+  asfr ~ marriage + divorce,
+  data = panel_pdata,
+  model = "random"
+)
+
+re_tbl <- coef_table(re_model)
+
+hausman_test <- phtest(fe_model, re_model)
+hausman_tbl <- tibble(
+  statistic = unname(hausman_test$statistic),
+  p_value = unname(hausman_test$p.value)
 )
 
 knitr::kable(
-  lag_tbl,
+  re_tbl,
   digits = 3,
-  caption = "Lagged regression model comparison"
+  caption = "Random-effects panel regression with robust standard errors"
 )
 
-ggplot(lag_tbl, aes(x = model, y = r_squared)) +
-  geom_col() +
-  geom_text(aes(label = round(r_squared, 3)), vjust = -0.3, size = 3) +
-  labs(
-    title = "R2 Comparison Across Lagged Regression Models",
-    x = "Model",
-    y = "R2"
-  ) +
-  ylim(0, max(lag_tbl$r_squared) + 0.1)
+knitr::kable(
+  hausman_tbl,
+  digits = 3,
+  caption = "Hausman test: fixed effects versus random effects"
+)
+```
 
-make_lag_scatter <- function(df, xvar, yvar = "tfr", lags, xlab = "Indicator") {
-  bind_rows(lapply(lags, function(k) {
-    df %>%
-      transmute(
-        year,
-        x = dplyr::lag(.data[[xvar]], k),
-        y = .data[[yvar]],
-        lag = paste0("k = ", k)
-      ) %>%
-      drop_na()
-  })) %>%
-    ggplot(aes(x, y)) +
-    geom_point() +
-    geom_smooth(method = "lm", se = FALSE) +
-    facet_wrap(~ lag, scales = "free_x") +
-    labs(
-      title = paste0("TFR(t) vs ", xlab, "(t-k) across selected lags"),
-      x = paste0(xlab, " (lagged)"),
-      y = "TFR"
+**Observation:**\
+The random-effects results are very similar to the fixed-effects results. Marriage still has a positive coefficient of about 5.187, but its p-value of 0.051 is slightly above the conventional 5% threshold. This means the result is not statistically significant at the 5% level, although it may still be described as borderline or weak evidence of a positive association.
+
+Divorce continues to show no meaningful statistical relationship with fertility, with a p-value of 0.930.
+
+The Hausman test gives a p-value of 1.000, suggesting no meaningful difference between the fixed-effects and random-effects results in this dataset.
+
+Overall, both models lead to the same broad conclusion: marriage shows a modest positive but statistically weak relationship with fertility, while divorce does not show clear evidence of association.
+
+## Code
+
+``` r
+re_model <- plm(
+  asfr ~ marriage + divorce,
+  data = panel_pdata,
+  model = "random"
+)
+
+re_tbl <- coef_table(re_model)
+
+hausman_test <- phtest(fe_model, re_model)
+hausman_tbl <- tibble(
+  statistic = unname(hausman_test$statistic),
+  p_value = unname(hausman_test$p.value)
+)
+
+knitr::kable(
+  re_tbl,
+  digits = 3,
+  caption = "Random-effects panel regression with robust standard errors"
+)
+
+knitr::kable(
+  hausman_tbl,
+  digits = 3,
+  caption = "Hausman test: fixed effects versus random effects"
+)
+```
+:::
+
+------------------------------------------------------------------------
+
+## 1.5 Coefficient Comparison Across Panel Models
+
+This chart compares the estimated coefficients across the fixed-effects and random-effects models. It helps show whether the direction and size of the marriage and divorce coefficients remain similar across the two panel specifications.
+
+::: panel-tabset
+## Visual
+
+```{r, echo=FALSE}
+coef_plot_df <- bind_rows(
+  coef_table(fe_model) %>%
+    mutate(model = "Fixed Effects"),
+  coef_table(re_model) %>%
+    mutate(model = "Random Effects")
+) %>%
+  mutate(
+    term = case_when(
+      term == "marriage" ~ "Marriage",
+      term == "divorce" ~ "Divorce",
+      TRUE ~ term
     )
-}
+  ) %>%
+  filter(term %in% c("Marriage", "Divorce"))
 
-p_mar_lag <- make_lag_scatter(
-  analysis_df,
-  xvar = "marriage",
-  lags = c(0, 2),
-  xlab = "Marriage"
-)
-
-p_div_lag <- make_lag_scatter(
-  analysis_df,
-  xvar = "divorce",
-  lags = c(0, 1),
-  xlab = "Divorce"
-)
-
-p_mar_lag
-p_div_lag
+ggplot(coef_plot_df, aes(x = model, y = estimate, fill = term)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6) +
+  geom_text(
+    aes(label = round(estimate, 2)),
+    position = position_dodge(width = 0.7),
+    vjust = -0.4,
+    size = 3.5
+  ) +
+  labs(
+    title = "Coefficient Comparison Across Panel Regression Models",
+    x = "Model",
+    y = "Coefficient Estimate",
+    fill = "Variable"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "top"
+  )
 ```
 
 **Observation:**\
-The lagged regression models examine whether earlier marriage and divorce patterns are associated with current fertility. Among the single-predictor lagged models, lagged marriage explains more variation in fertility (R2 = 0.636) than lagged divorce (R2 = 0.557). When both lagged predictors are included together, the model fit increases only slightly (R2 = 0.641), with lagged marriage remaining statistically significant (p = 0.004) but lagged divorce becoming insignificant (p = 0.460). Compared with the baseline models, the lagged models do not provide a stronger fit, suggesting that delayed effects may exist but are not more informative than the current-year relationship.
-
-The scatterplots show that the direction of association remains consistent across the selected lag values: marriage retains a positive relationship with fertility, while divorce retains a negative relationship. However, the lagged patterns do not appear substantially stronger than the baseline same-year case, which is consistent with the regression results.
-
-Note: The scatterplots above use the same lag values as the regression models so that the visual comparisons align directly with the tested baseline and delayed-effect specifications.
+The chart compares the estimated coefficients from the fixed-effects and random-effects models. Marriage remains positive in both models, while divorce remains much weaker. This suggests that the direction and relative size of the coefficients are broadly consistent across the two panel specifications.
 
 ## Code
 
 ``` r
-lag_m <- 2
-lag_d <- 1
-
-analysis_lag <- analysis_df %>%
+coef_plot_df <- bind_rows(
+  coef_table(fe_model) %>%
+    mutate(model = "Fixed Effects"),
+  coef_table(re_model) %>%
+    mutate(model = "Random Effects")
+) %>%
   mutate(
-    marriage_lag = lag(marriage, lag_m),
-    divorce_lag  = lag(divorce, lag_d)
+    term = case_when(
+      term == "marriage" ~ "Marriage",
+      term == "divorce" ~ "Divorce",
+      TRUE ~ term
+    )
   ) %>%
-  drop_na(marriage_lag, divorce_lag, tfr)
+  filter(term %in% c("Marriage", "Divorce"))
 
-m_lag_mar <- lm(tfr ~ marriage_lag, data = analysis_lag)
-m_lag_div <- lm(tfr ~ divorce_lag,  data = analysis_lag)
-m_lag_both <- lm(tfr ~ marriage_lag + divorce_lag, data = analysis_lag)
-
-fmt_p <- function(x) {
-  ifelse(
-    is.na(x), NA,
-    ifelse(x < 0.001, "<0.001", sprintf("%.3f", x))
-  )
-}
-
-lag_tbl <- tibble(
-  model = c("L1: TFR ~ Marriage(t-2)",
-            "L2: TFR ~ Divorce(t-1)",
-            "L3: TFR ~ Marriage(t-2) + Divorce(t-1)"),
-  n = c(nobs(m_lag_mar), nobs(m_lag_div), nobs(m_lag_both)),
-  r_squared = c(summary(m_lag_mar)$r.squared,
-                summary(m_lag_div)$r.squared,
-                summary(m_lag_both)$r.squared),
-  marriage_lag_coef = c(coef(m_lag_mar)["marriage_lag"], NA, coef(m_lag_both)["marriage_lag"]),
-  divorce_lag_coef  = c(NA, coef(m_lag_div)["divorce_lag"], coef(m_lag_both)["divorce_lag"]),
-  marriage_lag_p = fmt_p(c(coef(summary(m_lag_mar))["marriage_lag","Pr(>|t|)"],
-                           NA,
-                           coef(summary(m_lag_both))["marriage_lag","Pr(>|t|)"])),
-  divorce_lag_p  = fmt_p(c(NA,
-                           coef(summary(m_lag_div))["divorce_lag","Pr(>|t|)"],
-                           coef(summary(m_lag_both))["divorce_lag","Pr(>|t|)"]))
-)
-
-knitr::kable(
-  lag_tbl,
-  digits = 3,
-  caption = "Lagged regression model comparison"
-)
-
-ggplot(lag_tbl, aes(x = model, y = r_squared)) +
-  geom_col() +
-  geom_text(aes(label = round(r_squared, 3)), vjust = -0.3, size = 3) +
-  labs(
-    title = "R2 Comparison Across Lagged Regression Models",
-    x = "Model",
-    y = "R2"
+ggplot(coef_plot_df, aes(x = model, y = estimate, fill = term)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6) +
+  geom_text(
+    aes(label = round(estimate, 2)),
+    position = position_dodge(width = 0.7),
+    vjust = -0.4,
+    size = 3.5
   ) +
-  ylim(0, max(lag_tbl$r_squared) + 0.1)
+  labs(
+    title = "Coefficient Comparison Across Panel Regression Models",
+    x = "Model",
+    y = "Coefficient Estimate",
+    fill = "Variable"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "top"
+  )
 ```
 :::
-::::
+
+------------------------------------------------------------------------
+
+## Conclusion
+
+Across both panel models, marriage has a positive coefficient and remains close to the threshold of statistical significance, while divorce does not show a clear relationship with fertility in this dataset. These results suggest that marriage may be more closely associated with fertility patterns than divorce, although the overall evidence remains modest rather than strong. 

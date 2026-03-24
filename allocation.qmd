@@ -7,8 +7,8 @@ execute:
   eval: true
   echo: true
   warning: false
-  freeze: true
----
+  freeze: true 
+--- 
 
 # Work Allocation Overview
 

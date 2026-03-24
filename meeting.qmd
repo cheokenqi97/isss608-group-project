@@ -8,7 +8,7 @@ execute:
   echo: true
   warning: false
   freeze: true
----
+--- 
 
 # Meeting Minutes
 
@@ -92,9 +92,30 @@ Below is a summary of the key discussions and decisions made across our project 
 
 -   For shiny app development:En Qi would develop the Home Page and Correlation Page. Sze Ching would develop the EDA Page and Regression Page.
 
-## Meeting 4 – Final Submission Preparation
+## Meeting 4 – Urgent Meeting
 
-**Date:** 29 March 2026\
+**Date:** 21 March 2026\
+**Attendees:** Cheok En Qi, Teong Sze Ching
+
+### Agenda
+
+-   Address professor’s feedback on analytical methods
+
+### Key Discussion Points
+
+-   The project was flagged as high risk due to mismatches between the dataset and analytical methods used.
+-   Current methods (general regression and correlation analysis) are not suitable for time series data.
+-   Recommended changes by Prof: Replace general regression with panel regression, Replace correlation analysis with cross-correlation analysis
+-   Tools/packages suggested by professor: TStusio (for cross-correlation), ExPanDaR and plm R packages (for panel regression)
+
+### Decisions Made
+
+-   Implement panel regression and cross-correlation analysis
+-   Explore and apply recommended tools (TStusio, ExPanDaR, plm)
+
+## Meeting 5 – Final Submission Preparation
+
+**Date:** 28 March 2026\
 **Attendees:** Cheok En Qi, Teong Sze Ching
 
 ### Agenda

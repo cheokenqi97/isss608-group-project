@@ -71,7 +71,7 @@ raw1 <- raw0 %>%
 
 ### 3.3 Parse date rows and identify valid time-series observations (finding which rows are real dates and remove unnecessary rows)
 
-The first column of the worksheet contains a mixture of date values and non-data text. To separate real observations from metadata rows, a custom date-parsing function is used. This function handles both standard date strings and Excel serial dates. Rows are then flagged as valid time-series rows only if the parsed date is not missing and the year falls within a reasonable range. This allows metadata and summary rows to be excluded from further analysis.
+The first column of the worksheet contains a mixture of date values and non-data text. To separate real observations from metadata rows, a custom date-parsing function is used. This function handles both standard date strings and Excel serial dates. Rows are then flagged as valid time-series rows only if the parsed date is not missing and the year falls within a reasonable range. This allows metadata and summary rows to be excluded from further analysis. 
 
 ```{r}
 parse_ceic_date <- function(x) {
@@ -191,17 +191,25 @@ eda2_df <- df_long_clean %>%
   ))
 
 asfr_keys <- series_key %>%
-  filter(str_detect(label, "^Fertility Rate: Per 1000 Female: Age")) %>%
+  mutate(label_clean = str_to_lower(str_squish(label))) %>%
+  filter(str_detect(label_clean, "fertility rate") &
+           str_detect(label_clean, "1000") &
+           str_detect(label_clean, "age|aged")) %>%
   mutate(
-    age_band = str_extract(label, "\\b\\d{2}\\s*-\\s*\\d{2}"),
-    age_band = str_replace_all(age_band, "\\s*", "")
+    age_band = str_extract(label, "\\d{2}\\s*[-–]\\s*\\d{2}"),
+    age_band = str_replace_all(age_band, "\\s*", ""),
+    age_band = str_replace_all(age_band, "–", "-")
   ) %>%
-  arrange(age_band)
+  filter(!is.na(age_band)) %>%
+  distinct(series, .keep_all = TRUE)
+
+age_levels <- c("15-19","20-24","25-29","30-34","35-39","40-44","45-49")
 
 asfr_df <- df_long_clean %>%
-  semi_join(asfr_keys, by = "series") %>%
-  left_join(asfr_keys, by = "series") %>%
-  mutate(age_band = factor(age_band, levels = c("15-19","20-24","25-29","30-34","35-39","40-44","45-49")))
+  inner_join(asfr_keys %>% select(series, age_band), by = "series") %>%
+  mutate(age_band = factor(age_band, levels = age_levels)) %>%
+  filter(!is.na(age_band)) %>%
+  arrange(year, age_band)
 
 corr_df <- analysis_df %>%
   select(tfr, marriage, divorce) %>%
@@ -461,26 +469,22 @@ ggplot(asfr_df, aes(year, value, colour = age_band)) +  geom_line(linewidth = 0.
 
 ```{r, echo=FALSE}
 
-if (!exists("asfr_keys")) {
-  asfr_keys <- series_key %>%
-    filter(str_detect(label, "^Fertility Rate: Per 1000 Female: Age")) %>%
-    mutate(age_band = str_extract(label, "\\b\\d{2}\\s*-\\s*\\d{2}"), age_band = str_replace_all(age_band, "\\s*", "")) %>%
-    arrange(age_band)
-}
-
-stopifnot(nrow(asfr_keys) > 0)
-
-asfr_share_df <- df_long_clean %>%
-  semi_join(asfr_keys, by = "series") %>%
-  left_join(asfr_keys, by = "series") %>%
-  mutate(age_band = factor(age_band, levels = c("15-19","20-24","25-29","30-34","35-39","40-44","45-49"))) %>%
+asfr_share_df <- asfr_df %>%
   group_by(year) %>%
   mutate(total_asfr = sum(value, na.rm = TRUE)) %>%
   ungroup() %>%
-  mutate(share = value / total_asfr) %>%
+  mutate(share = if_else(total_asfr > 0, value / total_asfr, NA_real_)) %>%
   filter(!is.na(share))
 
-ggplot(asfr_share_df, aes(year, share, fill = age_band)) +  geom_area() + scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + labs(title = "Age-Band Fertility Composition Over Time", x = "Year", y = "Share of age-specific fertility", fill = "Age band")
+ggplot(asfr_share_df, aes(x = year, y = share, fill = age_band)) +
+  geom_area() +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(
+    title = "Age-Band Fertility Composition Over Time",
+    x = "Year",
+    y = "Share of age-specific fertility",
+    fill = "Age band"
+  )
 ```
 
 **Observation:**\
@@ -491,26 +495,22 @@ Note: This chart complements the age-specific fertility rate chart in section 4.
 #### Code
 
 ``` r
-if (!exists("asfr_keys")) {
-  asfr_keys <- series_key %>%
-    filter(str_detect(label, "^Fertility Rate: Per 1000 Female: Age")) %>%
-    mutate(age_band = str_extract(label, "\\b\\d{2}\\s*-\\s*\\d{2}"), age_band = str_replace_all(age_band, "\\s*", "")) %>%
-    arrange(age_band)
-}
-
-stopifnot(nrow(asfr_keys) > 0)
-
-asfr_share_df <- df_long_clean %>%
-  semi_join(asfr_keys, by = "series") %>%
-  left_join(asfr_keys, by = "series") %>%
-  mutate(age_band = factor(age_band, levels = c("15-19","20-24","25-29","30-34","35-39","40-44","45-49"))) %>%
+asfr_share_df <- asfr_df %>%
   group_by(year) %>%
   mutate(total_asfr = sum(value, na.rm = TRUE)) %>%
   ungroup() %>%
-  mutate(share = value / total_asfr) %>%
+  mutate(share = if_else(total_asfr > 0, value / total_asfr, NA_real_)) %>%
   filter(!is.na(share))
 
-ggplot(asfr_share_df, aes(year, share, fill = age_band)) +  geom_area() + scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + labs(title = "Age-Band Fertility Composition Over Time (Share of ASFR)", x = "Year", y = "Share of age-specific fertility", fill = "Age band")
+ggplot(asfr_share_df, aes(x = year, y = share, fill = age_band)) +
+  geom_area() +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(
+    title = "Age-Band Fertility Composition Over Time",
+    x = "Year",
+    y = "Share of age-specific fertility",
+    fill = "Age band"
+  )
 ```
 :::
 ::::
