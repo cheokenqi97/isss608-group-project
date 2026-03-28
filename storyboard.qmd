@@ -8,9 +8,9 @@ execute:
   echo: true
   warning: false
   freeze: true
----  
+---
 
-# Story Board Overview 
+# Story Board Overview
 
 Below is the story board design for our Shiny application. This will be adapted into a Shiny dashboard with interactive controls such as filters.
 
