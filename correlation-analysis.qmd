@@ -321,4 +321,4 @@ ggplot(peak_plot_df, aes(x = lag, y = correlation, colour = series)) +
 
 Overall, the results show that the clearest pattern for both marriage and divorce occurs at lag 0, meaning the strongest alignment with fertility appears in the same year. Marriage displays a positive pattern with fertility, while divorce shows a negative pattern.
 
-This section therefore provides an exploratory summary of the lag structure in the data and serves as a useful bridge to the panel regression section, where these relationships are examined more formally.
+This section therefore provides an exploratory summary of the lag structure in the data and serves as a useful bridge to the panel regression section, where these relationships are then examined more formally.

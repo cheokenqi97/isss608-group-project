@@ -373,4 +373,4 @@ ggplot(coef_plot_df, aes(x = model, y = estimate, fill = term)) +
 
 ## Conclusion
 
-Across both panel models, marriage has a positive coefficient and remains close to the threshold of statistical significance, while divorce does not show a clear relationship with fertility in this dataset. These results suggest that marriage may be more closely associated with fertility patterns than divorce, although the overall evidence remains modest rather than strong. 
+Across both panel models, marriage has a positive coefficient and remains close to the threshold of statistical significance, while divorce does not show a clear relationship with fertility in this dataset. These results suggest that marriage may be more closely associated with fertility patterns than divorce, although the overall evidence remains modest rather than strong.  
