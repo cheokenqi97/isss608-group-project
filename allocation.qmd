@@ -10,7 +10,7 @@ execute:
   freeze: true 
 --- 
 
-# Work Allocation Overview
+# Work Allocation Overview 
 
 In order to meet the time line for our project, below is our proposed schedule
 

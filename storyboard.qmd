@@ -4,7 +4,7 @@ author: "G1 T16 - Cheok En Qi and Teong Sze Ching"
 date: "March 12, 2026"
 date-modified: "last-modified"
 execute: 
-  eval: true
+  eval: true 
   echo: true
   warning: false
   freeze: true
@@ -71,7 +71,7 @@ knitr::include_graphics("data/regression.png")
 ```
 
 ## 4. Package Selection Justification
-
+ 
 To support the development of the Shiny application, we selected packages based on clarity of output, interpretability, ease of integration with Shiny, and suitability for the project’s time-series and panel-data structure.
 
 For visualisation, we used ggplot2 as the main charting library because it produces clear and consistent visual output, is highly customisable, and integrates well with Shiny through plotOutput(). It is well suited for presenting demographic trends over time, age-group fertility patterns, coefficient comparison charts, and cross-correlation summaries in a structured and readable format.

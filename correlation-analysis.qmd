@@ -5,7 +5,7 @@ date: "March 6, 2026"
 date-modified: "last-modified"
 execute: 
   eval: true
-  echo: true
+  echo: true 
   warning: false
   freeze: true
 --- 

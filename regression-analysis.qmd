@@ -2,7 +2,7 @@
 title: "Panel Regression Analysis: Singapore Fertility Trends: A Visual Analytics Study"
 author: "G1 T16 - Cheok En Qi and Teong Sze Ching"
 date: "March 6, 2026"
-date-modified: "last-modified"
+date-modified: "last-modified" 
 execute: 
   eval: true
   echo: true
