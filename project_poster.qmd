@@ -11,7 +11,7 @@ execute:
 ---
 
 ```{r echo=FALSE, out.width="100%", out.height="1000px", fig.align="center"}
-knitr::include_graphics("data/poster.png")
+knitr::include_graphics("data/poster.jpg")
 ```
 
 This poster present Singapore’s fertility trend using demographic data from the CEIC database. It is organised into four parts: data preparation, exploratory data analysis, cross-correlation analysis, and panel regression analysis. First, the fertility, marriage, and divorce data were cleaned and combined into a usable dataset. The exploratory analysis then highlights some of the main patterns, such as the long-term decline in fertility, small spikes during dragon years, and signs that births are happening later across older age groups.
