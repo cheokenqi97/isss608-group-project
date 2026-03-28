@@ -26,7 +26,7 @@ website:
       - text: "Meeting Minutes"
         href: meeting.qmd
       - text: "Shiny App"
-        href: ShinyApp/ISSS608 Group Project/app.R
+        href: https://cheokenqi.shinyapps.io/ISSS608-GroupProject/
       - text: "Project Poster"
         href: project_poster.qmd
     right:
