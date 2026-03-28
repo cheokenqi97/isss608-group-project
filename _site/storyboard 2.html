@@ -202,7 +202,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#proposed-layout-of-the-analytical-tasks" id="toc-proposed-layout-of-the-analytical-tasks" class="nav-link" data-scroll-target="#proposed-layout-of-the-analytical-tasks">3. Proposed layout of the Analytical Tasks</a>
   <ul class="collapse">
   <li><a href="#correlation-analysis" id="toc-correlation-analysis" class="nav-link" data-scroll-target="#correlation-analysis">3.1 Correlation Analysis</a></li>
-  <li><a href="#panel-regression-analysis" id="toc-panel-regression-analysis" class="nav-link" data-scroll-target="#panel-regression-analysis">3.2 Panel Regression Analysis</a></li>
+  <li><a href="#regression-analysis" id="toc-regression-analysis" class="nav-link" data-scroll-target="#regression-analysis">3.2 Regression Analysis</a></li>
   </ul></li>
   <li><a href="#package-selection-justification" id="toc-package-selection-justification" class="nav-link" data-scroll-target="#package-selection-justification">4. Package Selection Justification</a></li>
   </ul></li>
@@ -254,14 +254,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Below is the story board design for our Shiny application. This will be adapted into a Shiny dashboard with interactive controls such as filters.</p>
 <section id="home-page" class="level2">
 <h2 class="anchored" data-anchor-id="home-page">1. Home Page</h2>
-<p>The Home Page is designed to provide users with a high-level overview of Singapore’s fertility trends and the main purpose of the dashboard. It will include a short introduction to the issue of declining fertility, headline indicators such as the latest total fertility rate, and a brief explanation of the three main areas of analysis: trend exploration, Cross Correlation analysis and Panel Regression.</p>
+<p>The Home Page is designed to provide users with a high-level overview of Singapore’s fertility trends and the main purpose of the dashboard. It will include a short introduction to the issue of declining fertility, headline indicators such as the latest total fertility rate, and a brief explanation of the three main areas of analysis: trend exploration, Correlation analysis, and relationship analysis with marriage and divorce indicators.</p>
 <p>The purpose of this page is to orient users before they move into the detailed analytical sections. It allows users to quickly understand what the dashboard is about and what questions it can help answer.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">include_graphics</span>(<span class="st">"data/home.png"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data/home.png" class="img-fluid figure-img" width="816"></p>
+<p><img src="data/home.png" class="img-fluid figure-img" width="417"></p>
 </figure>
 </div>
 </div>
@@ -285,37 +285,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="proposed-layout-of-the-analytical-tasks" class="level2">
 <h2 class="anchored" data-anchor-id="proposed-layout-of-the-analytical-tasks">3. Proposed layout of the Analytical Tasks</h2>
-<p>The Analytical Tasks page will support deeper investigation into the relationship between fertility and related demographic indicators. This section will contain separate modules for cross correlation analysis and panel regression analysis.</p>
+<p>The Analytical Tasks page will support deeper investigation into the relationship between fertility and related demographic indicators. This section will contain separate modules for correlation analysis and regression analysis.</p>
 <section id="correlation-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="correlation-analysis">3.1 Correlation Analysis</h3>
-<p>The Cross-Correlation Analysis page is designed to let users interactively examine how fertility co-moves with marriage and divorce indicators across different lags. Rather than focusing only on same-year association, this page allows users to explore whether the clearest pattern appears in the same year or after a short time shift.</p>
-<p>The layout consists of a control panel on the left and an output panel on the right. In the control panel, users can select the indicator to examine, choosing between Marriage, Divorce, or Both for comparison. Users can also adjust the maximum lag to define the lag window shown in the analysis, and filter the year range to focus on a selected analysis period.</p>
-<p>The output panel displays two main elements. First, a cross-correlation plot shows how the correlation between fertility and the selected indicator changes across the lag window. When both indicators are selected, the plot compares the lag patterns for marriage and divorce in the same view. Second, a lag values table displays the exact cross-correlation values for each lag within the selected range.</p>
-<p>This page is intended to support exploratory analysis of the overall lag structure in the aggregate yearly series. It helps users identify whether the strongest alignment with fertility occurs in the same year or at a shifted lag, and provides a clear bridge to the panel regression section, where the same-year relationship is examined more formally.</p>
-<p>Possible Shiny UI components for this page include: sliderInput() for year range, radioButtons() for indicator selection, sliderInput() for maximum lag, plotOutput() for the cross-correlation plot, DTOutput() for the lag values table</p>
+<p>The Correlation Analysis page is designed to let users interactively examine how fertility is associated with marriage and divorce indicators across different time periods and analytical settings.</p>
+<p>The layout will consist of a control panel on the left and an output panel on the right. In the control panel, users will be able to filter the year range to focus on a selected analysis period.</p>
+<p>The output panel will display three main elements. First, a clustered correlation plot will summarise the overall correlation structure between total fertility rate, marriage, and divorce indicators. Second, a hierarchical clustering dendrogram will group years according to similar combinations of fertility, marriage, and divorce patterns so that users can identify broad phases in the demographic series. Third, a rolling correlation chart will show how the correlation between fertility and each indicator changes across time windows, allowing users to assess whether the observed relationships are stable or time-varying.</p>
+<p>Possible Shiny UI components for this page include: (1) sliderInput() for year range, (2) plotOutput() for the clustered correlation plot, (3) plotOutput() for the hierarchical clustering dendrogram, and (4) plotOutput() for the rolling correlation chart.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">include_graphics</span>(<span class="st">"data/corr.png"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data/corr.png" class="img-fluid figure-img" width="416"></p>
+<p><img src="data/corr.png" class="img-fluid figure-img" width="410"></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="panel-regression-analysis" class="level3">
-<h3 class="anchored" data-anchor-id="panel-regression-analysis">3.2 Panel Regression Analysis</h3>
-<p>The Panel Regression Analysis page is designed to let users examine the relationship between fertility, marriage, and divorce more formally after the overall lag pattern has been identified in the cross-correlation section. Since the cross-correlation analysis showed that the clearest co-movement for both indicators appears at lag 0, this page focuses on the same-year specification in the panel regression model.</p>
-<p>The layout consists of a control panel on the left and an output panel on the right. In the control panel, users can filter the year range to focus on a selected analysis period. This allows the panel regression results to be re-estimated over different time spans while keeping the same overall modelling structure.</p>
-<p>The output panel displays two main elements. First, a fixed-effects coefficient plot shows the estimated same-year coefficients for marriage and divorce, allowing users to compare the direction and relative size of the relationships. Second, a summary table reports the coefficient estimates, standard errors, and p-values from the fixed-effects model.</p>
-<p>Possible Shiny UI components for this page include: (1) sliderInput() for year range, (2) plotOutput() for the fixed-effects coefficient plot, (3) DTOutput() for the regression summary table.</p>
+<section id="regression-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="regression-analysis">3.2 Regression Analysis</h3>
+<p>The Regression Analysis page is designed to let users interactively examine whether fertility is associated with marriage and divorce indicators under different lag assumptions.</p>
+<p>The layout will consist of a control panel on the left and an output panel on the right. In the control panel, users will be able to choose whether the regression should use marriage only, divorce only, or both predictors together. Users will also be able to specify the delayed effect by adjusting separate lag values for marriage and divorce. A lag value of 0 will correspond to the baseline same-year model, while higher lag values will represent delayed-effect models.</p>
+<p>The output panel will display three main elements. First, a regression results table will summarise the fitted model, including the sample size, R2, coefficients, and p-values. Second, a column chart will show the R2 value of the selected regression specification so that users can quickly compare how well different lag choices fit the data. Third, scatterplots with fitted regression lines will provide a visual view of the relationship between current fertility and the selected lagged predictor values. These plots help users see whether the direction and apparent strength of the relationship change as the lag settings are adjusted.</p>
+<p>Possible Shiny UI components for this page include: (1) radioButtons() for choosing regression specification: marriage only, divorce only, or both, (2) sliderInput() for marriage lag, (3) sliderInput() for divorce lag, (4) tableOutput() for regression results, (5) plotOutput() for the R2 column chart, (6) plotOutput() for the lagged scatterplots</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">include_graphics</span>(<span class="st">"data/regression.png"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data/regression.png" class="img-fluid figure-img" width="441"></p>
+<p><img src="data/regression.png" class="img-fluid figure-img" width="430"></p>
 </figure>
 </div>
 </div>
@@ -324,14 +323,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="package-selection-justification" class="level2">
 <h2 class="anchored" data-anchor-id="package-selection-justification">4. Package Selection Justification</h2>
-<p>To support the development of the Shiny application, we selected packages based on clarity of output, interpretability, ease of integration with Shiny, and suitability for the project’s time-series and panel-data structure.</p>
-<p>For visualisation, we used ggplot2 as the main charting library because it produces clear and consistent visual output, is highly customisable, and integrates well with Shiny through plotOutput(). It is well suited for presenting demographic trends over time, age-group fertility patterns, coefficient comparison charts, and cross-correlation summaries in a structured and readable format.</p>
-<p>For data preparation and transformation, we used functions from the tidyverse, especially dplyr and tidyr, because they support clear and efficient data manipulation. These packages were useful for reshaping yearly and age-group datasets, filtering user-selected inputs, and preparing panel data for modelling.</p>
-<p>For interactive tabular output, we used the DT package because it allows model summaries and cross-correlation results to be displayed in a more readable and user-friendly table format within the Shiny app.</p>
-<p>For cross-correlation analysis, we used base R’s ccf() together with TSstudio for time-series visualisation. These tools were selected because they are appropriate for examining lagged co-movement between fertility and demographic indicators, which better matches the time-series nature of the data than ordinary same-year correlation analysis.</p>
-<p>For panel-data analysis, we referred to both ExPanDaR and plm. The final panel regression models in this project were implemented using plm, which provided a more direct and transparent setup for the fixed-effects and random-effects specifications used in the Shiny application.</p>
-<p>To support panel model evaluation, we also used lmtest and sandwich. These packages are useful for hypothesis testing and robust inference, including model comparison and coefficient testing.</p>
-<p>Overall, these packages were chosen because they support a Shiny application that is methodologically aligned with the project’s objectives, while keeping the outputs interpretable and suitable for interactive exploration.</p>
+<p>To support the development of the Shiny application, we selected packages based on clarity of output, ease of integration with Shiny, interpretability and suitability for the project scope.</p>
+<p>For visualisation, we selected <strong>ggplot2</strong> as the main charting library because it produces clear and consistent visual output, is easy to customise, and integrates well with Shiny through <strong>plotOutput()</strong>. It is well suited for presenting demographic time-series trends, scatterplots and rolling correlation charts in a structured and readable format.</p>
+<p>For correlation analysis, we used the <strong>cor()</strong> function to compute correlation matrices and the <strong>corrplot</strong> package to visualise them. This library was selected because it provides clear graphical representations of correlation structures, including clustered correlation matrices that help highlight relationships among fertility, marriage, and divorce indicators.</p>
+<p>For arranging multiple charts in the same output view, we used <strong>patchwork</strong> because it allows plots to be combined in a simple and flexible way while keeping the code readable.</p>
+<p>For statistical modelling, we used <strong>lm()</strong> for regression because they are sufficient for the scope of this project. Since the Shiny app is intended to support interactive exploration, simpler and more explainable models were preferred.</p>
 
 
 </section>
