@@ -8,7 +8,7 @@ execute:
   echo: true
   warning: false
   freeze: true
---- 
+---
 
 # Meeting Minutes
 
@@ -125,8 +125,13 @@ Below is a summary of the key discussions and decisions made across our project 
 
 ### Key Discussion Points
 
-TBA
+-   The Shiny App components were integrated into the project website.
+-   The group reviewed the visualisations and ensured that the analysis clearly communicates the key findings.
+-   Poster design were discussed.
 
 ### Decisions Made
 
-TBA
+-   Final website structure confirmed.
+-   Poster content finalised and both will work on it to submit tonight.
+-   Complete final checks on the website and analysis.
+-   Submit the project before the deadline.
