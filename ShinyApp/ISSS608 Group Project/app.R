@@ -303,8 +303,8 @@ ui <- fluidPage(
               br(),
               uiOutput("panel_interpretation")),
           div(class = "box-card chart-card",
-              h3("3. Fixed-Effects Regression Summary Table"),
-              p(class = "chart-desc", "This table reports the coefficient estimates, robust standard errors, and p-values from the fixed-effects panel regression model."),
+              h3("2. Fixed-Effects Regression Summary Table"),
+              p(class = "chart-desc", "This table reports the summary results."),
               DTOutput("panel_regression_table"))
 
         )

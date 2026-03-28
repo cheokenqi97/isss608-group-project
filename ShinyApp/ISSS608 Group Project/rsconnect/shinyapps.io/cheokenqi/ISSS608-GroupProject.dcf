@@ -5,7 +5,7 @@ account: cheokenqi
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 17006041
-bundleId: 11772774
+bundleId: 11773837
 url: https://cheokenqi.shinyapps.io/ISSS608-GroupProject/
 version: 1
 asMultiple: FALSE
